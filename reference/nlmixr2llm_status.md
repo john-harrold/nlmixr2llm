@@ -48,6 +48,11 @@ Claude Code files are compared by content. Each file is classified
 \`"current"\`, \`"outdated"\`, or \`"not installed"\`. Only targets that
 actually have installed content are mentioned in the printed summary.
 
+When the package is attached interactively, it runs this check
+automatically (read-only) and prints a one-line notice if any installed
+copy is out of date. Disable that startup check with
+\`options(nlmixr2llm.startup_check = FALSE)\`.
+
 ## See also
 
 \[install_claude_code()\], \[install_codex()\], \[install_positron()\]

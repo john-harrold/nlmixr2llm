@@ -93,6 +93,10 @@ compared by the package version recorded at install time; Claude Code files
 are compared by content. Each file is classified `"current"`, `"outdated"`,
 or `"not installed"`. Only targets that actually have installed content are
 mentioned in the printed summary.</p>
+<p>When the package is attached interactively, it runs this check automatically
+(read-only) and prints a one-line notice if any installed copy is out of
+date. Disable that startup check with `options(nlmixr2llm.startup_check =
+FALSE)`.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
