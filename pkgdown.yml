@@ -1,0 +1,9 @@
+pandoc: 3.8.3
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  nlmixr2llm: nlmixr2llm.html
+last_built: 2026-05-25T17:41Z
+urls:
+  reference: https://john-harrold.github.io/nlmixr2llm/reference
+  article: https://john-harrold.github.io/nlmixr2llm/articles

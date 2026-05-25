@@ -1,0 +1,84 @@
+# Install agents and skills into Claude Code
+
+Copies the bundled agent and skill content into the location Claude Code
+reads it from. The single combined ecosystem agent becomes
+\`\<root\>/agents/nlmixr2verse.md\` (installed regardless of
+\`packages\`, since it spans the whole ecosystem); each selected
+package's skill becomes \`\<root\>/skills/\<package\>/SKILL.md\` (plus
+any supporting files in the skill directory).
+
+## Usage
+
+``` r
+install_claude_code(
+  scope = c("user", "project"),
+  packages = NULL,
+  path = ".",
+  overwrite = FALSE,
+  prune = TRUE
+)
+```
+
+## Arguments
+
+- scope:
+
+  \`"user"\` writes to \`~/.claude/\`; \`"project"\` writes to
+  \`\<path\>/.claude/\`. The user-scope base is \`\$CLAUDE_CONFIG_DIR\`
+  if set, otherwise the home directory returned by
+  \`getOption("nlmixr2llm.home")\` (defaulting to \`~\`). Setting
+  \`options(nlmixr2llm.home = tempdir())\` redirects user-scope writes
+  away from the real home – used by the package's own tests so they
+  never touch your home filespace.
+
+- packages:
+
+  Character vector of nlmixr2-universe packages to install. Defaults to
+  all available packages (see \[list_packages()\]).
+
+- path:
+
+  Project root when \`scope = "project"\`. Defaults to the current
+  working directory.
+
+- overwrite:
+
+  If \`TRUE\`, replace existing files with the same name. If \`FALSE\`
+  (default), existing files are kept and a message is shown.
+
+- prune:
+
+  If \`TRUE\` (default), remove previously installed files that the
+  current package version no longer ships (tracked via the manifest).
+  Set \`FALSE\` to leave them in place.
+
+## Value
+
+Invisibly, a character vector of files written.
+
+## Details
+
+Installed files are recorded in a manifest
+(\`\<root\>/.nlmixr2llm-manifest\`). When \`prune = TRUE\` (the
+default), re-installing after a package upgrade deletes files this
+package installed previously but no longer ships (for example the
+per-package agent files that predated the combined \`nlmixr2verse\`
+agent). Only files nlmixr2llm itself created are ever removed; your own
+agents and skills are never touched. Pruning is keyed off the full
+current content set, so selecting a subset with \`packages\` does
+\*\*not\*\* prune the skills of packages you left out.
+
+For \`scope = "user"\` (which writes under your home directory) the
+function asks for confirmation in interactive sessions before writing.
+Non-interactive callers proceed without prompting; set
+\`options(nlmixr2llm.consent = TRUE)\` to pre-approve in an interactive
+setup script.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+install_claude_code(scope = "user")
+install_claude_code(scope = "project", packages = c("rxode2", "nlmixr2"))
+} # }
+```
