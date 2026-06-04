@@ -52,7 +52,7 @@ These hold everywhere; the package sections below add specifics rather than repe
 - A model is an R function with `ini({})` (parameters) and `model({})` (equations) blocks.
 - ODEs use `d/dt(name) <- ...`; initial conditions are `name(0) <- value` inside `model({})`.
 - Algebraic assignments (e.g. `cp <- center/v`) must appear *before* they are used and before any residual-error line.
-- Parameterize fixed effects on the **log or logit scale**: `tcl <- log(value)` in `ini`, `cl <- exp(tcl + eta.cl)` in `model`; use `logit()`/`expit()` for (0,1)-bounded parameters.
+- Parameterize fixed effects on the **log or logit scale**: `tcl <- log(value)` in `ini`, `cl <- exp(tcl + eta.cl)` in `model`; use `logit()`/`expit()` for (0,1)-bounded and `logit(,low, hi)`/`expit(,low,hi)` for (low, hi)-bounded parameters.
 - Between-subject variability uses `~` with a starting variance: `eta.cl ~ 0.3`. Off-diagonal OMEGA blocks list multiple etas together with a matrix start.
 - Residual error lives at the end of `model({})`: `cp ~ add(add.sd)`, `prop(prop.sd)`, `add() + prop()`, or `lnorm()`. Multi-endpoint models use one residual line per endpoint, bound to the data via `| dvid("name")`.
 - Datasets are NONMEM-style: `ID/TIME/EVID/AMT/CMT/DV` (+ covariates, `DVID`, `CENS`/`LIMIT`).

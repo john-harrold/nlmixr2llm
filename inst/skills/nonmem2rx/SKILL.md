@@ -81,8 +81,9 @@ The returned object **is** an rxode2 UI, so anything that works on an rxode2 mod
 | `run.ctl` / `run.mod` | control stream (passed to `nonmem2rx()`) |
 | `run.lst` / `run.res` | listing — pointed at via `lst=` |
 | `run.xml` | structured output (THETA/OMEGA/SE) |
-| `run.phi` | per-ID ETAs |
+| `run.phi` | per-ID ETAs in focei |
 | dataset CSV | as referenced inside `$DATA` of the control stream |
+| output tables | as referenced inside `$TABLE` of the control stream |
 
 If any of these are missing, expect an error or a partially populated object — flag the missing piece to the user instead of silently continuing.
 
@@ -103,7 +104,7 @@ The skill is "done" only when the converted model has been **executed and qualif
 | `cannot find lst file` | wrong `lst=` extension; check the actual filename |
 | `dataset not found` | `$DATA` path is relative to the ctl directory — `setwd()` or pass an absolute path |
 | `rounding errors` in listing | NONMEM run didn't fully converge; use the `read-rounding` vignette workflow before trusting estimates |
-| IPRED mismatch in `$ipredCompare` | unsupported NONMEM construct, or model uses an ADVAN/feature nonmem2rx doesn't translate cleanly — inspect the generated rxode2 model and reconcile by hand |
+|  mismatch in `$ipredCompare` | unsupported NONMEM construct, or model uses an ADVAN/feature nonmem2rx doesn't translate cleanly — inspect the generated rxode2 model and reconcile by hand |
 | Duplicate ETA / parameter names | known limitation — nonmem2rx will not auto-rename; fix in the source ctl |
 
 ## What NOT to do

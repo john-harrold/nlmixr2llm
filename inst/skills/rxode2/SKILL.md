@@ -76,6 +76,9 @@ et() |> et(amt = 100, ii = 12, ss = 1, cmt = "depot") |> et(0:24)
 # Infusion (rate-based)
 et() |> et(amt = 100, rate = 10, cmt = "centr") |> et(0:24)
 
+# Infusion (duration-based)
+et() |> et(amt = 100, dur = 10, cmt = "centr") |> et(0:24)
+
 # Multi-subject
 et() |> et(amt = 100, cmt = "depot") |> et(0:24) |> et(id = 1:50)
 

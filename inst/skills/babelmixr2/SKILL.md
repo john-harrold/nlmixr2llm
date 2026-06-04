@@ -20,8 +20,8 @@ Activate whenever the user is:
 
 | `est=` | What babelmixr2 does |
 |---|---|
-| `"nonmem"` | Generates a control stream + dataset, runs NONMEM via `runCommand`, reads results back via `nonmem2rx`, returns an nlmixr2 fit-like object |
-| `"monolix"` | Generates an `.mlxtran` project + dataset, runs Monolix (CLI or `lixoftConnectors`), reads results back via `monolix2rx`, returns an nlmixr2 fit-like object |
+| `"nonmem"` | Generates a control stream + dataset, runs NONMEM via `runCommand`, reads results back and combines with the original model to return an nlmixr2 fit object |
+| `"monolix"` | Generates an `.mlxtran` project + dataset, runs Monolix (CLI or `lixoftConnectors`), reads results back and combines the original model to return an nlmixr2 fit object |
 | `"pknca"` | Runs non-compartmental analysis via `PKNCA` on the dataset and wraps the result in an nlmixr2-shaped object — useful as a starting point for popPK initial estimates |
 
 ## Minimum viable example — NONMEM
@@ -88,7 +88,7 @@ fit <- nlmixr(pk.turnover.emax3, nlmixr2data::warfarin, "monolix",
    - NONMEM: `options("babelmixr2.nonmem" = "nmfe743")` (or full path), or pass `runCommand=` to `nonmemControl()`.
    - Monolix: install `lixoftConnectors` and it auto-detects, or set `options("babelmixr2.monolix" = "monolix")`, or pass `runCommand=` to `monolixControl()`.
 4. **`runCommand` can be a function.** Useful for cluster submission — return after the run completes and the output files exist.
-5. **The result is an nlmixr2 fit.** Standard post-processing works: `fit$parFixed`, `augPred(fit)`, `vpcPlot(fit)`, `fit$omega`, `as.data.frame(fit)`. If something appears missing, it usually means the back-translation hit an unsupported feature — see Debugging below.
+5. **The result is an nlmixr2 fit.** Standard post-processing works: `fit$parFixed`, `augPred(fit)`, `vpcPlot(fit)`, `fit$omega`, `as.data.frame(fit)`. If something appears missing, it usually means the import hit an unsupported output — see Debugging below.
 6. **PKNCA is the odd one out.** `est = "pknca"` doesn't fit a model — it runs NCA and returns an object you can use to seed initial estimates for a subsequent popPK fit. Drive it with `pkncaControl(concu=, doseu=, timeu=, volumeu=)`.
 
 ## Workflow
@@ -114,7 +114,7 @@ The skill is "done" only when the fit has been **executed and inspected**, not j
 ## What NOT to do
 
 - Don't rewrite the model in NONMEM control-stream syntax by hand. The whole point of babelmixr2 is to *not* do that.
-- Don't trust a fit you haven't inspected. Engine runs can "succeed" and still produce a degenerate fit object if back-translation broke.
+- Don't trust a fit you haven't inspected. Engine runs can "succeed" and still produce a degenerate fit object if model import broke.
 - Don't mix `est=` between runs without changing `modelName` — output directories will collide.
 - Don't ignore `nonmem2rx` / `monolix2rx` errors during back-translation; they're the canary for unsupported features.
 
@@ -128,4 +128,4 @@ The skill is "done" only when the fit has been **executed and inspected**, not j
 
 ## Relationship to nonmem2rx and monolix2rx
 
-`babelmixr2` is the *forward* path (nlmixr2 → engine). `nonmem2rx` and `monolix2rx` are the *backward* path (engine output → rxode2/nlmixr2). babelmixr2 calls them after the engine run completes. If a babelmixr2 fit looks broken, the bug is almost always in back-translation — reproduce by loading the engine output directly with `nonmem2rx()` / `monolix2rx()` and debugging there.
+`babelmixr2` is the *forward* path (nlmixr2 → engine). `nonmem2rx` and `monolix2rx` are the *backward* path (engine output → rxode2/nlmixr2). babelmixr2 does not call the backward translation after the run completes because it already knows what the original nlmixr2 model was.  If a babelmixr2 fit looks broken, the bug is almost always in import — you can debug this by trying to load the engine output directly with `nonmem2rx()` / `monolix2rx()` and seeing if a nlmixr2 fit can be generated from these outputs.
