@@ -43,5 +43,5 @@ full regardless of \`packages\`; \`packages\` only subsets the skills.
 ``` r
 prompt <- system_prompt(packages = "rxode2")
 nchar(prompt)
-#> [1] 37288
+#> [1] 37437
 ```

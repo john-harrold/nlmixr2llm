@@ -65,7 +65,7 @@ to whichever client you use.
 
 prompt <- system_prompt(packages = c("rxode2", "nlmixr2"))
 nchar(prompt)
-#> [1] 45047
+#> [1] 46084
 ```
 
 By default
