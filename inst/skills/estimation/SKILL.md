@@ -48,21 +48,22 @@ fit$parFixed
 ## Authoring rules
 
 1. **Hand `nlmixr2()` the function itself**, not `model()`; it instantiates internally.
-2. **Log / logit scale for fixed effects.** `tcl <- log(2.72)` in `ini`, `cl <- exp(tcl + eta.cl)` in `model`. Use `logit()` / `expit()` for (0, 1) parameters. Forgetting `log()` is the most common cause of a fit that wanders.
+2. **Log / logit scale for fixed effects.** `tcl <- log(2.72)` in `ini`, `cl <- exp(tcl + eta.cl)` in `model`. Use `logit()` / `expit()` for (0, 1) parameters, or `logit(x, low, hi)` / `expit(x, low, hi)` for (low, hi) bounds. Forgetting `log()` is the most common cause of a fit that wanders.
 3. **`label()` every THETA** so `$parFixed` and reports are readable.
 4. **Random effects** use `~` with a starting *variance*: `eta.cl ~ 0.3`. Correlated ETAs: `eta.cl + eta.v ~ c(0.3, 0.01, 0.1)` (lower-triangle order).
-5. **Residual error** ends `model({})`: `cp ~ add(add.sd)`, `prop(prop.sd)`, `add(add.sd) + prop(prop.sd)`, `lnorm(lnorm.sd)`. Multi-endpoint: one line per endpoint bound to the data with `| endpointName` (a bare name matching the `CMT` / `DVID` value, e.g. `effect ~ add(eff.sd) | effect`).
+5. **Residual error** ends `model({})`: `cp ~ add(add.sd)`, `prop(prop.sd)`, `add(add.sd) + prop(prop.sd)`, `lnorm(lnorm.sd)`; transforms and heavier tails via `add(add.sd) + boxCox(lambda)` or `add(add.sd) + dt(df)`; a fully custom likelihood via `ll(cp) ~ <log-likelihood expression>` (FOCEi only). Multi-endpoint: one line per endpoint bound to the data with `| endpointName` (a bare name matching the `CMT` / `DVID` value, e.g. `effect ~ add(eff.sd) | effect`).
 6. **Bounds / fixed values.** `tcl <- log(c(0, 2.7, 100))` gives lower / initial / upper; `tv <- fixed(log(31.5))` fixes a THETA.
-7. **Pick `est=` deliberately** (see table) and always pass the matching control with `print = 0` in scripts.
+7. **Pick `est=` deliberately** (see table) and always pass the matching control (`saemControl()`, `foceiControl()`, `foceControl()`, `foControl()`, `laplaceControl()`, `agqControl()`, `nlmeControl()`) with `print = 0` in scripts.
 8. **Closed-form PK** can use `linCmt()` in place of the ODEs (`linCmt() ~ add(add.sd)`), which is faster for 1–3 compartment linear models. Caveat in rxode2 4.1.1: `fit$objf` on a SAEM + `linCmt()` fit can fail to compile its quadrature model; use the ODE form when you need the OFV, or `addCwres(fit)` for the FOCEi objective.
 
 ## Estimation methods
 
 | `est=` | Use for |
 |---|---|
-| `"saem"` | Robust default; tolerant of poor initials. Computes SEs by default via `covMethod` in `saemControl()`; check they are present. |
-| `"focei"` | Gradient-based with Hessian SEs; the precision gold standard, more sensitive to initials and stiffness. Common pattern: SAEM first, then FOCEi from the SAEM estimates. |
+| `"saem"` | Robust default; tolerant of poor initials. Computes SEs by default via `covMethod` in `saemControl()`; check they are present. Does not compute an objective function during the fit: `fit$objf` (Gaussian quadrature) or `addCwres(fit)` (FOCEi) adds one. |
+| `"focei"` | Gradient-based with Hessian SEs; the precision gold standard, more sensitive to initials and stiffness; the only method for generalized `ll()` likelihoods. Common pattern: SAEM first, then FOCEi from the SAEM estimates. |
 | `"foce"`, `"fo"`, `"foi"` | Variants without interaction / first-order; legacy comparison. |
+| `"laplace"`, `"agq"` | Laplace approximation (AGQ with one quadrature point) and adaptive Gaussian quadrature (`agqControl(nAGQ=)`); more accurate likelihoods, but keep `nAGQ` small and use only with few ETAs. |
 | `"nlme"` | Wraps R's `nlme`; simple closed-form models. |
 | `"posthoc"` | Freeze THETA/OMEGA, compute ETAs for (new) data. |
 | `"nonmem"`, `"monolix"`, `"pknca"` | Provided by babelmixr2 — see the `interop` skill. |
@@ -112,7 +113,7 @@ Acceptance checks before reporting: OFV finite; no THETA on a bound; %RSE reason
 |---|---|
 | `parameter not found` at compile | symbol not in `ini({})`, not a compartment, not in the data |
 | SAEM OFV swings wildly / runs forever | initials off-scale (missing `log()`), or a covariate column missing for some rows |
-| FOCEi Hessian / covariance failure | over-parameterized OMEGA, ETA variance near zero, identifiability; drop or fix ETAs, or `preconditionFit()` |
+| FOCEi Hessian / covariance failure | over-parameterized OMEGA, ETA variance near zero, identifiability; drop or fix ETAs, try another outer optimizer (`foceiControl(outerOpt = "bobyqa")`), or `preconditionFit()` |
 | SEs `NA` in `$parFixed` | covariance step failed; try FOCEi, `covMethod`, bootstrap or profiling |
 | Parameter sits on its bound | not really estimated; rethink the structure or bounds |
 | BSV% near 0 or > 100% | ETA unsupported by data; remove it |

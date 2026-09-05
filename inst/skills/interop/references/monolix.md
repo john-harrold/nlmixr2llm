@@ -21,7 +21,7 @@ fit <- nlmixr(model_fn, data, est = "monolix",
 | `stiff` | Use the stiff ODE solver in Monolix. |
 | `addProp` | How combined additive + proportional error is expressed in Mlxtran. |
 
-babelmixr2 writes the `.mlxtran` project, the model text file, and the dataset into the `modelName` directory, runs Monolix, then calls `monolix2rx()` on the results and returns an nlmixr2 fit object.
+babelmixr2 writes the `.mlxtran` project, the model text file, and the dataset into the `modelName` directory, runs Monolix, then reads the results folder and combines it with the original nlmixr2 model into a fit object; it does not re-translate the Mlxtran.
 
 ## Importing a finished Monolix project (monolix2rx)
 
@@ -39,6 +39,8 @@ mod <- monolix2rx("path/to/project.mlxtran")
 # Structural parse only (no conversion)
 proj <- mlxtran(mlxtranFile)
 str(as.list(proj))
+
+fit <- babelmixr2::as.nlmixr2(mod)   # promote the qualified import to an nlmixr2 fit
 ```
 
 Arguments of note: `update` (use the final estimates from the results folder when present), `thetaMatType` (`c("sa", "lin")` by default: which `FisherInformation/covarianceEstimates*.txt` to load, stochastic-approximation preferred), `theta` / `sd` / `cor` (fallback values for estimates missing from the results), `ci` / `sigdig` (tolerance used by the built-in validation).
@@ -83,7 +85,7 @@ Monolix built-in library models are referenced as `lib:bolus_1cpt_TlagVCl.txt` a
 - No `FisherInformation/covarianceEstimates*.txt` — the standard-error task was skipped; re-run with it enabled if you need `$thetaMat`.
 - `$omega` populated but wrong, or empty — random-effect parsing hit a structure monolix2rx does not translate; inspect the model body.
 - BLQ handling differs between tools — confirm `CENS` / `LIMIT` columns survive the round-trip.
-- Treating the result as an nlmixr2 fit — it is an rxode2 model.
+- Treating the result as an nlmixr2 fit — it is an rxode2 model; `babelmixr2::as.nlmixr2(mod)` gives the fit.
 
 ## References
 

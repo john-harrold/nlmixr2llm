@@ -9,11 +9,11 @@ Three packages cover two directions of travel:
 
 | Direction | Package | What it does |
 |---|---|---|
-| **R → engine** (forward) | `babelmixr2` | Write one nlmixr2 model, fit it with `est = "nonmem"`, `"monolix"`, or `"pknca"`. Generates the engine input, runs the engine, reads results back, returns an nlmixr2 fit. |
+| **R → engine** (forward) | `babelmixr2` | Write one nlmixr2 model, fit it with `est = "nonmem"`, `"monolix"`, or `"pknca"`. Generates the engine input, runs the engine, reads the engine's output files, and combines them with the original model into an nlmixr2 fit. |
 | **Engine → R** (import) | `nonmem2rx` | Finished NONMEM run (control stream + outputs) → rxode2 UI object with THETA/OMEGA/ETAs and predictions baked in. |
 | **Engine → R** (import) | `monolix2rx` | Finished Monolix project (`.mlxtran` + results folder) → rxode2 model object. |
 
-babelmixr2 calls nonmem2rx / monolix2rx internally for its back-translation step. When a babelmixr2 fit looks wrong, reproduce the problem by loading the engine output directly with `nonmem2rx()` / `monolix2rx()` — that separates a translation bug from a wiring bug.
+babelmixr2 does **not** re-translate the engine's model on the way back: it already knows the nlmixr2 model it started from and only imports the engine's estimates and tables. nonmem2rx / monolix2rx are the independent path for runs that did not start in R. Both paths end in an nlmixr2 fit: `babelmixr2::as.nlmixr2(mod)` promotes an imported (and qualified) rxode2 model to a full fit. When a babelmixr2 fit looks wrong, load the same engine output with `nonmem2rx()` / `monolix2rx()` and `as.nlmixr2()` — a second route to the same fit that isolates an import problem.
 
 ## Routing
 
@@ -59,7 +59,7 @@ Rules:
 2. **Always set `modelName`.** It names the output directory; unset or reused names collide.
 3. **Configure the engine once per session** via `options()`; pass `runCommand=` to the control object only for one-off overrides. `runCommand` may be a function (cluster submission) that returns after output files exist.
 4. **Check the engine exists before launching** (`getOption("babelmixr2.nonmem")`, binary on `PATH`) and tell the user if it is missing rather than starting a doomed run.
-5. **The result is an nlmixr2 fit.** `print(fit)`, `fit$parFixed`, `fit$omega`, `augPred()`, `vpcPlot()` all work. An empty `$parFixed` after a "successful" run means back-translation broke — see Debugging.
+5. **The result is an nlmixr2 fit.** `print(fit)`, `fit$parFixed`, `fit$omega`, `augPred()`, `vpcPlot()` all work. An empty `$parFixed` after a "successful" run means the import of the engine output broke — see Debugging.
 6. **PKNCA is not a model fit.** `est = "pknca"` runs non-compartmental analysis to seed popPK initial estimates. Drive it with `pkncaControl(concu=, doseu=, timeu=, volumeu=)`; units must match the dataset.
 
 ## Import path — nonmem2rx / monolix2rx
@@ -73,7 +73,7 @@ library(monolix2rx)
 mod <- monolix2rx("path/to/project.mlxtran")   # results folder must sit beside it
 ```
 
-Both return an **rxode2 model, not an nlmixr2 fit**. Solve it with `et()` + `rxSolve()` like any rxode2 model; promote to a fit-like object via each package's `convert-nlmixr2` article when residual diagnostics against the original data are needed. Read slots with `$` (`mod$etaData`); `[[` does not work on these objects.
+Both return an **rxode2 model, not an nlmixr2 fit**. Solve it with `et()` + `rxSolve()` like any rxode2 model. To get a real nlmixr2 fit (for the `reporting` skill's diagnostics against the original data) call `fit <- babelmixr2::as.nlmixr2(mod)` after qualification. Read slots with `$` (`mod$etaData`); `[[` does not work on these objects.
 
 Rules:
 
@@ -98,7 +98,7 @@ Done means executed, qualified, and inspected — not merely launched or loaded.
 | `could not find NONMEM` / `Monolix` | engine option or `runCommand` unset / wrong; check `PATH` |
 | Run ends with rounding errors, fit looks empty | non-convergence; fix the model, or `nonmemControl(readRounding = TRUE)` to read partial results |
 | Monolix "runs" but no fit | neither `lixoftConnectors` installed nor `babelmixr2.monolix` set |
-| `$parFixed` empty after a successful engine run | back-translation failed — load the output with `nonmem2rx()` / `monolix2rx()` directly |
+| `$parFixed` empty after a successful engine run | import of the engine output failed — load the output with `nonmem2rx()` / `monolix2rx()` and `babelmixr2::as.nlmixr2()` as a second route |
 | OFV differs from a hand-written ctl | babelmixr2 generates MU-referenced code; compare `MU` refs, `$THETA` bounds, column order |
 | `cannot find lst file` / `dataset not found` | wrong `lst=` extension; `$DATA` path is relative to the ctl directory — `setwd()` or use absolute paths |
 | `lib:...txt not found` | Monolix library model — set `options(monolix2rx.library=)`, install `lixoftConnectors`, or export the model to text |
@@ -112,7 +112,7 @@ Done means executed, qualified, and inspected — not merely launched or loaded.
 - Don't hand-write a control stream or Mlxtran when babelmixr2 can generate it.
 - Don't trust a fit or conversion you haven't inspected and qualified.
 - Don't rebuild an imported model from scratch "to be safe" — patch only what the qualification diff shows is wrong.
-- Don't treat an imported model as an nlmixr2 fit; it is an rxode2 model.
+- Don't treat an imported model as an nlmixr2 fit; it is an rxode2 model until `babelmixr2::as.nlmixr2()` makes it one.
 - Don't reuse `modelName` across engines or runs.
 
 ## References (in each package's repo)

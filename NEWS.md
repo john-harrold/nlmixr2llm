@@ -35,7 +35,11 @@
   (`| endpoint`, a bare name, not `| dvid("name")`), the default nlmixr2rpt
   figure IDs, ggPMX's VPC being disabled for nlmixr2 fits, monolix2rx argument
   semantics and result-file layout, `nonmem2rx(save=)` writing `.qs`, and the
-  behaviour of SAEM fits whose OFV is computed lazily.
+  behaviour of SAEM fits whose OFV is computed lazily. Upstream corrections
+  from the per-package skills (bounded `logit(x, low, hi)`, `laplace` / `agq`
+  methods, `boxCox()` / `dt()` / `ll()` residual forms, babelmixr2 importing
+  engine output rather than re-translating, `babelmixr2::as.nlmixr2()`) are
+  carried into the task skills.
 
 ## API changes (breaking)
 

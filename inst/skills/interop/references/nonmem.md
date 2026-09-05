@@ -22,7 +22,7 @@ fit <- nlmixr(model_fn, data, est = "nonmem",
 | `muRef` | babelmixr2 generates MU-referenced code by default; keep it unless comparing to a hand-written ctl. |
 | `cov` | Covariance step setting written to `$COV`. |
 
-What babelmixr2 writes into the `modelName` directory: control stream, NONMEM-format dataset, and after the run the listing / `.xml` / `.phi` / table files. It then calls `nonmem2rx()` on those outputs and returns an nlmixr2 fit object.
+What babelmixr2 writes into the `modelName` directory: control stream, NONMEM-format dataset, and after the run the listing / `.xml` / `.phi` / table files. It reads those outputs and combines them with the original nlmixr2 model into a fit object; it does not re-translate the control stream.
 
 ## Importing a finished NONMEM run (nonmem2rx)
 
@@ -37,6 +37,8 @@ mod <- nonmem2rx(resFile, validate = TRUE, save = FALSE)
 mod <- nonmem2rx("path/to/run123.ctl", lst = ".lst", validate = TRUE)
 
 cat(deparse(as.function(mod)), sep = "\n")   # generated rxode2 model body
+
+fit <- babelmixr2::as.nlmixr2(mod)            # promote the qualified import to an nlmixr2 fit
 ```
 
 Arguments:
@@ -55,8 +57,9 @@ Arguments:
 | `run.ctl` / `run.mod` | control stream |
 | `run.lst` / `run.res` | listing (final estimates, termination status) |
 | `run.xml` | structured output (THETA/OMEGA/SIGMA, SEs) |
-| `run.phi` | per-ID ETAs |
+| `run.phi` | per-ID ETAs (FOCE / FOCEI runs) |
 | `run.ext`, `run.cov` | iteration history, covariance (optional but used when present) |
+| `$TABLE` output files | as named in the control stream; joined into `$nonmemData` and used for PRED / IPRED comparison |
 | dataset CSV | as referenced in `$DATA` (relative to the ctl directory) |
 
 Missing pieces yield a partially populated object, not an error. Flag them.
@@ -94,7 +97,7 @@ Non-zero differences point at an unsupported construct: unusual ADVAN, custom `$
 - Listing reports rounding errors — see the `read-rounding` article before trusting estimates.
 - Duplicate ETA names are not auto-renamed; fix the source ctl or use `etaNames=`.
 - `parameter not found` when solving — a THETA used only inside `$ERROR` did not propagate; patch the model.
-- Treating the result as an nlmixr2 fit — it is an rxode2 UI. Promote via the `convert-nlmixr2` article when needed.
+- Treating the result as an nlmixr2 fit — it is an rxode2 UI. `babelmixr2::as.nlmixr2(mod)` gives the fit when you need one.
 
 ## References
 

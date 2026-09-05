@@ -5,7 +5,7 @@ description: Use this skill when the user wants to evaluate or communicate the r
 
 # Reporting — diagnostics, tables, and documents from an nlmixr2 fit
 
-Reporting turns a fit into evidence: does the model describe the data, how precise are the parameters, and what does that look like in a document the team can read. The input is always an nlmixr2 fit object (from `nlmixr2()` directly, or via babelmixr2 from NONMEM/Monolix — see the `interop` skill).
+Reporting turns a fit into evidence: does the model describe the data, how precise are the parameters, and what does that look like in a document the team can read. The input is always an nlmixr2 fit object: from `nlmixr2()` directly, from babelmixr2 running NONMEM/Monolix, or from `babelmixr2::as.nlmixr2()` on an imported NONMEM/Monolix run (see the `interop` skill).
 
 ## Tool map
 
