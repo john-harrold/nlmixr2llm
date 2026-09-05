@@ -30,7 +30,9 @@ test_that("bash blocks in the agent run cleanly", {
   # only for this smoke test.
   rscript <- shQuote(file.path(R.home("bin"), "Rscript"))
   for (i in seq_len(nrow(bash))) {
-    cmd <- gsub("(^|[^[:alnum:]_/])Rscript\\b", paste0("\\1", rscript), bash$code[i])
+    cmd <- gsub("(^|[^[:alnum:]_/])Rscript\\b", paste0("\\1", rscript), bash$code[i],
+                perl = TRUE)
+    expect_match(cmd, R.home("bin"), fixed = TRUE)   # the substitution must have happened
     out <- suppressWarnings(system2("bash", c("-c", shQuote(cmd)),
                                     stdout = TRUE, stderr = TRUE))
     status <- attr(out, "status") %||% 0L
