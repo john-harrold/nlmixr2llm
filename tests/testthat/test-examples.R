@@ -24,8 +24,14 @@ test_that("bash blocks in the agent run cleanly", {
   blocks <- do.call(rbind, lapply(example_source_files(), extract_code_blocks))
   bash <- blocks[blocks$lang == "bash", , drop = FALSE]
   expect_gt(nrow(bash), 0)
+  # `R CMD check --as-cran` puts an instrumented `Rscript` on the PATH that
+  # refuses to run without a full path. The snippet is written for a coding
+  # agent's shell where bare `Rscript` is right, so substitute the full path
+  # only for this smoke test.
+  rscript <- shQuote(file.path(R.home("bin"), "Rscript"))
   for (i in seq_len(nrow(bash))) {
-    out <- suppressWarnings(system2("bash", c("-c", shQuote(bash$code[i])),
+    cmd <- gsub("(^|[^[:alnum:]_/])Rscript\\b", paste0("\\1", rscript), bash$code[i])
+    out <- suppressWarnings(system2("bash", c("-c", shQuote(cmd)),
                                     stdout = TRUE, stderr = TRUE))
     status <- attr(out, "status") %||% 0L
     expect_identical(status, 0L,
