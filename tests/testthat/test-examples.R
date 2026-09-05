@@ -16,7 +16,8 @@ test_that("skip list only names blocks that exist", {
 
 test_that("bash blocks in the agent run cleanly", {
   skip_on_cran()
-  skip_if(Sys.which("Rscript") == "", "Rscript not on PATH")
+  skip_on_os("windows")   # `bash` there is the WSL launcher, not a shell
+  skip_if(Sys.which("bash") == "", "bash not on PATH")
   # R CMD check exports R_TESTS=startup.Rs (a path relative to the tests dir);
   # a child R process started from tests/testthat cannot find it and dies at
   # startup, so clear it for the subprocess.
