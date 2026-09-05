@@ -57,6 +57,7 @@ jobs:
             any::testthat
             any::withr
             any::rxode2
+            any::units
             any::nlmixr2
             any::nlmixr2est
             any::nlmixr2data

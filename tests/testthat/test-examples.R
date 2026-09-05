@@ -17,13 +17,20 @@ test_that("skip list only names blocks that exist", {
 test_that("bash blocks in the agent run cleanly", {
   skip_on_cran()
   skip_if(Sys.which("Rscript") == "", "Rscript not on PATH")
+  # R CMD check exports R_TESTS=startup.Rs (a path relative to the tests dir);
+  # a child R process started from tests/testthat cannot find it and dies at
+  # startup, so clear it for the subprocess.
+  withr::local_envvar(R_TESTS = "")
   blocks <- do.call(rbind, lapply(example_source_files(), extract_code_blocks))
   bash <- blocks[blocks$lang == "bash", , drop = FALSE]
   expect_gt(nrow(bash), 0)
   for (i in seq_len(nrow(bash))) {
-    status <- system(bash$code[i], ignore.stdout = TRUE, ignore.stderr = TRUE)
+    out <- suppressWarnings(system2("bash", c("-c", shQuote(bash$code[i])),
+                                    stdout = TRUE, stderr = TRUE))
+    status <- attr(out, "status") %||% 0L
     expect_identical(status, 0L,
-                     info = sprintf("%s#%d", bash$file[i], bash$index[i]))
+                     info = sprintf("%s#%d\n%s", bash$file[i], bash$index[i],
+                                    paste(out, collapse = "\n")))
   }
 })
 

@@ -29,7 +29,7 @@ mod <- function() {
   })
 }
 
-ev <- et(amountUnits = "mg", timeUnits = "hours") |>
+ev <- et(amountUnits = "mg", timeUnits = "hours") |>   # unit arguments need the `units` package
   et(amt = 100, cmt = "depot") |>
   et(time = 0:24)
 
@@ -107,6 +107,7 @@ Done means executed and inspected, not written.
 | Output flat or zero | dosing into the wrong compartment, or `amt` missing |
 | Wrong magnitude | unit mismatch between `timeUnits` and rate constants |
 | Every subject identical | model has no `~` random effects, or `omega=` not supplied |
+| `there is no package called 'units'` | `et(amountUnits=, timeUnits=)` needs the `units` package; install it or drop the unit arguments |
 
 ## What NOT to do
 

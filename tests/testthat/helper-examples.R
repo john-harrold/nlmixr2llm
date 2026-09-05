@@ -202,7 +202,8 @@ example_warning_allowlist <- c(
   "id.vars and measure.vars are internally guessed",       # reshape2 melt in nlmixr2rpt tables
   "ATTENTION",                             # SAEM/FOCEi convergence advisories
   "covariance", "Hessian", "boundary",     # precision-step advisories on a tiny test fit
-  "no C compiler"                          # rxode2 compiler probe
+  "no C compiler",                         # rxode2 compiler probe
+  "No software packages matched for filtering" # vpc::vpc() software filter on plain data frames
 )
 
 # Per-block allowances for warnings raised inside a package the snippet calls,
