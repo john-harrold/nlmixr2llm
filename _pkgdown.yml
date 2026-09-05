@@ -26,9 +26,11 @@ reference:
     desc: >
       Inspect the agents and skills bundled with the package.
     contents:
+      - list_tasks
       - list_packages
       - list_agents
       - list_skills
+      - list_skill_files
       - get_agent
       - get_skill
 

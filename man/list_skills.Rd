@@ -7,10 +7,10 @@
 list_skills()
 }
 \value{
-Character vector of skill names (one per nlmixr2-universe package).
+Character vector of skill names.
 }
 \description{
-List available skills
+Skills are one per task, so this is the same set as [list_tasks()].
 }
 \examples{
 list_skills()

@@ -6,10 +6,11 @@
 \usage{
 install_codex(
   scope = c("user", "project"),
-  packages = NULL,
+  tasks = NULL,
   path = ".",
   mode = c("write", "append", "error"),
-  include = c("both", "agents", "skills")
+  include = c("both", "agents", "skills"),
+  references = FALSE
 )
 }
 \arguments{
@@ -19,8 +20,8 @@ the home directory returned by `getOption("nlmixr2llm.home")` (defaulting to
 `~`); set `options(nlmixr2llm.home = tempdir())` to redirect user-scope
 writes away from the real home (used by the package's tests).}
 
-\item{packages}{Character vector of nlmixr2-universe packages to include.
-Defaults to all available packages.}
+\item{tasks}{Character vector of tasks whose skills to include. Defaults to
+all available tasks (see [list_tasks()]).}
 
 \item{path}{Project root when `scope = "project"`. Defaults to the current
 working directory.}
@@ -32,6 +33,9 @@ working directory.}
 
 \item{include}{Which content to include: `"both"` (default), `"agents"`,
 or `"skills"`.}
+
+\item{references}{If `TRUE`, also include each skill's supporting reference
+files (see [list_skill_files()]). Defaults to `FALSE` to stay compact.}
 }
 \value{
 Invisibly, the path written.
@@ -46,7 +50,9 @@ directory.
 \details{
 Codex has a default limit of ~32 KiB for combined AGENTS.md content
 (`project_doc_max_bytes`); a warning is issued if the written file exceeds
-that size.
+that size. The agent plus all four task skills is about 37 KiB, so for Codex
+subset with `tasks = ...` or `include = ...` (the agent alone is ~8 KiB and
+each skill ~7-8 KiB; the agent plus three skills is ~29 KiB).
 
 For `scope = "user"` (which writes under your home directory) the function
 asks for confirmation in interactive sessions before writing. Non-interactive
@@ -59,12 +65,12 @@ On case-insensitive filesystems (macOS, Windows) the project-scope
   [install_positron()] with `style = "agents_md"`) are the **same file**, so
   installing both into one project means the second call overwrites the
   first. With default arguments the instruction content is identical, so this
-  is harmless; if you pass different `packages`/`include` to each, only the
+  is harmless; if you pass different `tasks`/`include` to each, only the
   last call's selection survives.
 }
 \examples{
 \dontrun{
-install_codex(scope = "project", packages = c("rxode2", "nlmixr2"))
-install_codex(scope = "user", mode = "append")
+install_codex(scope = "project", tasks = c("simulation", "estimation"))
+install_codex(scope = "user", include = "agents", mode = "append")
 }
 }

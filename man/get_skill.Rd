@@ -4,18 +4,20 @@
 \alias{get_skill}
 \title{Read a skill's markdown content}
 \usage{
-get_skill(package)
+get_skill(task)
 }
 \arguments{
-\item{package}{One of [list_skills()].}
+\item{task}{One of [list_tasks()].}
 }
 \value{
 A length-one character string with the full SKILL.md content,
   including YAML frontmatter.
 }
 \description{
-Read a skill's markdown content
+Returns the `SKILL.md` for a task. Supporting reference files that ship
+alongside it (see [list_skill_files()]) are not included; use
+[system_prompt()] with `references = TRUE` to concatenate them.
 }
 \examples{
-cat(substr(get_skill("rxode2"), 1, 200))
+cat(substr(get_skill("simulation"), 1, 200))
 }

@@ -32,7 +32,7 @@ Targets checked:
   scope) -- discrete agent/skill files, compared by content.
 * **Codex / `AGENTS.md`** (`~/.codex/AGENTS.md` and `<path>/AGENTS.md`, the
   latter shared with [install_agents_md()]).
-* **Positron** `agents.md` (`<path>/agents.md`) and per-package
+* **Positron** `agents.md` (`<path>/agents.md`) and per-task
   `*.instructions.md` files (`<path>/.github/instructions/`).
 
 Concatenated single-file targets carry an embedded version stamp, so they are

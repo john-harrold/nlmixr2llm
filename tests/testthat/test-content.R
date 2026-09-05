@@ -1,12 +1,40 @@
-test_that("list_packages returns the expected set", {
+test_that("list_tasks returns the four task skills", {
   expect_setequal(
-    list_packages(),
-    c("babelmixr2", "monolix2rx", "nlmixr2", "nonmem2rx", "rxode2")
+    list_tasks(),
+    c("estimation", "interop", "reporting", "simulation")
   )
+  expect_identical(list_skills(), list_tasks())
+})
+
+test_that("list_packages maps tasks to the packages they cover", {
+  all <- list_packages()
+  expect_true(all(c("rxode2", "nlmixr2", "babelmixr2", "nonmem2rx",
+                    "monolix2rx", "nlmixr2rpt") %in% all))
+  expect_setequal(list_packages(tasks = "interop"),
+                  c("babelmixr2", "nonmem2rx", "monolix2rx"))
+  expect_error(list_packages(tasks = "nonsense"), "No matching tasks")
 })
 
 test_that("list_agents returns the single combined ecosystem agent", {
   expect_setequal(list_agents(), "nlmixr2verse")
+})
+
+test_that("every skill has frontmatter with name matching its directory", {
+  for (t in list_tasks()) {
+    txt <- get_skill(t)
+    lines <- strsplit(txt, "\n", fixed = TRUE)[[1]]
+    expect_identical(lines[1], "---", info = t)
+    expect_true(any(grepl(sprintf("^name: %s$", t), lines)), info = t)
+    expect_true(any(grepl("^description: .+", lines)), info = t)
+    expect_true(nzchar(skill_description(t)), info = t)
+  }
+})
+
+test_that("list_skill_files puts SKILL.md first and finds references", {
+  files <- list_skill_files("interop")
+  expect_identical(files[1], "SKILL.md")
+  expect_true(any(grepl("^references/", files)))
+  expect_error(list_skill_files("rxode2"))
 })
 
 cc_project <- function(df) df[df$target == "Claude Code (project)", ]
@@ -32,7 +60,7 @@ test_that("nlmixr2llm_status reports not-installed, current, then outdated", {
 test_that("nlmixr2llm_status messages an out-of-date summary", {
   tmp <- withr::local_tempdir()
   install_claude_code(scope = "project", path = tmp)
-  writeLines("stale", file.path(tmp, ".claude", "skills", "rxode2", "SKILL.md"))
+  writeLines("stale", file.path(tmp, ".claude", "skills", "simulation", "SKILL.md"))
   expect_message(
     nlmixr2llm_status(path = tmp),
     "out of date.*overwrite = TRUE"
@@ -44,14 +72,14 @@ test_that("nlmixr2llm_status covers Codex and Positron targets", {
   # filesystems (macOS/Windows). Subset to stay under the Codex 32 KiB cap.
   d1 <- withr::local_tempdir()
   install_codex(scope = "project", path = d1,
-                include = "skills", packages = "rxode2")
+                include = "skills", tasks = "simulation")
   s1 <- nlmixr2llm_status(path = d1, quiet = TRUE)
   expect_identical(
     s1$status[s1$target == "Codex / AGENTS.md (project)"], "current"
   )
 
   d2 <- withr::local_tempdir()
-  install_positron(workspace = d2, style = "instructions", packages = "rxode2")
+  install_positron(workspace = d2, style = "instructions", tasks = "simulation")
   inst <- nlmixr2llm_status(path = d2, quiet = TRUE)
   inst <- inst[inst$target == "Positron instructions (project)", ]
   expect_true(nrow(inst) >= 1 && all(inst$status == "current"))
@@ -59,7 +87,7 @@ test_that("nlmixr2llm_status covers Codex and Positron targets", {
   # Positron agents.md may be reported under the Codex label on a
   # case-insensitive filesystem (same file), so assert on the file's row.
   d3 <- withr::local_tempdir()
-  install_positron(workspace = d3, style = "agents_md", packages = "rxode2")
+  install_positron(workspace = d3, style = "agents_md", tasks = "simulation")
   s3 <- nlmixr2llm_status(path = d3, quiet = TRUE)
   ag <- s3[tolower(s3$item) == "agents.md" & s3$status != "not installed", ]
   expect_true(nrow(ag) >= 1 && all(ag$status == "current"))
@@ -68,7 +96,7 @@ test_that("nlmixr2llm_status covers Codex and Positron targets", {
 test_that("nlmixr2llm_status flags an out-of-date Codex AGENTS.md by version", {
   tmp <- withr::local_tempdir()
   install_codex(scope = "project", path = tmp,
-                include = "skills", packages = "rxode2")
+                include = "skills", tasks = "simulation")
   f <- file.path(tmp, "AGENTS.md")
   writeLines(sub("version=[^[:space:]]+", "version=0.0.0", readLines(f)), f)
 
@@ -95,7 +123,7 @@ test_that("user-scope Codex install honors nlmixr2llm.home override", {
   withr::local_options(nlmixr2llm.home = tmp)
   withr::local_envvar(CODEX_HOME = NA)
 
-  p <- install_codex(scope = "user", include = "skills", packages = "rxode2")
+  p <- install_codex(scope = "user", include = "skills", tasks = "simulation")
   expect_true(startsWith(normalizePath(p), normalizePath(file.path(tmp, ".codex"))))
 })
 
@@ -142,56 +170,74 @@ test_that("get_agent and get_skill return non-empty markdown", {
   expect_type(txt, "character")
   expect_gt(nchar(txt), 100)
 
-  skill <- get_skill("rxode2")
+  skill <- get_skill("simulation")
   expect_type(skill, "character")
   expect_gt(nchar(skill), 100)
+  expect_error(get_skill("rxode2"))
 })
 
 test_that("system_prompt strips frontmatter and assembles content", {
-  prompt <- system_prompt(packages = "rxode2")
+  prompt <- system_prompt(tasks = "simulation")
   expect_false(grepl("^---", prompt))
   expect_match(prompt, "Agent: nlmixr2verse")
-  expect_match(prompt, "Skill: rxode2")
+  expect_match(prompt, "Skill: simulation")
+  expect_false(grepl("Skill: estimation", prompt))
 })
 
-test_that("system_prompt includes the full agent regardless of packages", {
+test_that("system_prompt includes the full agent regardless of tasks", {
   # The combined agent spans the whole ecosystem, so it is included even when
-  # only one package's skill is requested.
-  prompt <- system_prompt(packages = "rxode2")
+  # only one task's skill is requested.
+  prompt <- system_prompt(tasks = "simulation")
   expect_match(prompt, "monolix2rx")  # mentioned by the ecosystem agent
 })
 
 test_that("system_prompt respects include argument", {
-  agents_only <- system_prompt(packages = "rxode2", include = "agents")
+  agents_only <- system_prompt(tasks = "simulation", include = "agents")
   expect_match(agents_only, "Agent: nlmixr2verse")
-  expect_false(grepl("Skill: rxode2", agents_only))
+  expect_false(grepl("Skill: simulation", agents_only))
 
-  skills_only <- system_prompt(packages = "rxode2", include = "skills")
-  expect_match(skills_only, "Skill: rxode2")
+  skills_only <- system_prompt(tasks = "simulation", include = "skills")
+  expect_match(skills_only, "Skill: simulation")
   expect_false(grepl("Agent: nlmixr2verse", skills_only))
+})
+
+test_that("system_prompt can append skill reference files", {
+  compact <- system_prompt(tasks = "interop", include = "skills")
+  full <- system_prompt(tasks = "interop", include = "skills", references = TRUE)
+  expect_false(grepl("Reference \\(interop\\)", compact))
+  expect_match(full, "Reference \\(interop\\): references/nonmem.md")
+  expect_gt(nchar(full), nchar(compact))
+})
+
+test_that("system_prompt rejects unknown tasks", {
+  expect_error(system_prompt(tasks = "rxode2"), "No matching tasks")
 })
 
 test_that("install_codex writes a project AGENTS.md", {
   tmp <- withr::local_tempdir()
   path <- install_codex(
     scope = "project",
-    packages = "rxode2",
+    tasks = "simulation",
     path = tmp,
     include = "agents"
   )
   expect_true(file.exists(path))
   expect_true(file.size(path) > 0)
+  expect_match(readLines(path)[2], "tasks=simulation")
 })
 
 test_that("install_claude_code writes agents and skills to project scope", {
   tmp <- withr::local_tempdir()
   files <- install_claude_code(
     scope = "project",
-    packages = "rxode2",
+    tasks = "interop",
     path = tmp
   )
   expect_true(any(grepl("agents/nlmixr2verse.md$", files)))
-  expect_true(any(grepl("skills/rxode2/SKILL.md$", files)))
+  expect_true(any(grepl("skills/interop/SKILL.md$", files)))
+  # Supporting reference files travel with the skill.
+  expect_true(any(grepl("skills/interop/references/nonmem.md$", files)))
+  expect_false(any(grepl("skills/simulation/", files)))
   # A manifest is recorded so later re-installs can prune obsolete files.
   expect_true(file.exists(file.path(tmp, ".claude", ".nlmixr2llm-manifest")))
 })
@@ -199,19 +245,22 @@ test_that("install_claude_code writes agents and skills to project scope", {
 test_that("install_claude_code prunes files it no longer ships", {
   tmp <- withr::local_tempdir()
   install_claude_code(scope = "project", path = tmp)
-  agents <- file.path(tmp, ".claude", "agents")
+  skills <- file.path(tmp, ".claude", "skills")
 
   # Simulate a file installed by a previous version: present on disk *and*
-  # recorded in the manifest, but not shipped by the current version.
-  legacy <- file.path(agents, "rxode2.md")
-  writeLines("legacy per-package agent", legacy)
+  # recorded in the manifest, but not shipped by the current version (the old
+  # per-package skill layout).
+  dir.create(file.path(skills, "rxode2"))
+  legacy <- file.path(skills, "rxode2", "SKILL.md")
+  writeLines("legacy per-package skill", legacy)
   mf <- file.path(tmp, ".claude", ".nlmixr2llm-manifest")
-  cat("agents/rxode2.md\n", file = mf, append = TRUE)
+  cat("skills/rxode2/SKILL.md\n", file = mf, append = TRUE)
 
   install_claude_code(scope = "project", path = tmp, overwrite = TRUE)
 
-  expect_false(file.exists(legacy))                       # pruned
-  expect_true(file.exists(file.path(agents, "nlmixr2verse.md")))  # kept
+  expect_false(file.exists(legacy))                              # pruned
+  expect_false(dir.exists(file.path(skills, "rxode2")))          # empty dir gone
+  expect_true(file.exists(file.path(skills, "simulation", "SKILL.md")))  # kept
 })
 
 test_that("install_claude_code prune = FALSE keeps obsolete files", {
@@ -241,16 +290,16 @@ test_that("install_claude_code never prunes files it did not install", {
   expect_true(file.exists(mine))
 })
 
-test_that("install_claude_code does not prune deselected but shipped packages", {
+test_that("install_claude_code does not prune deselected but shipped tasks", {
   tmp <- withr::local_tempdir()
   install_claude_code(scope = "project", path = tmp,
-                      packages = c("rxode2", "nlmixr2"))
-  # Re-install a subset; nlmixr2's skill is still shipped, just not selected.
-  install_claude_code(scope = "project", path = tmp, packages = "rxode2",
+                      tasks = c("simulation", "estimation"))
+  # Re-install a subset; estimation's skill is still shipped, just not selected.
+  install_claude_code(scope = "project", path = tmp, tasks = "simulation",
                       overwrite = TRUE)
 
   expect_true(file.exists(
-    file.path(tmp, ".claude", "skills", "nlmixr2", "SKILL.md")
+    file.path(tmp, ".claude", "skills", "estimation", "SKILL.md")
   ))
 })
 
@@ -259,23 +308,26 @@ test_that("install_positron agents_md style writes workspace agents.md", {
   path <- install_positron(
     workspace = tmp,
     style = "agents_md",
-    packages = "rxode2"
+    tasks = "simulation"
   )
   expect_true(file.exists(path))
   expect_match(path, "agents\\.md$")
 })
 
-test_that("install_positron instructions style writes per-package + agent files", {
+test_that("install_positron instructions style writes per-task + agent files", {
   tmp <- withr::local_tempdir()
   files <- install_positron(
     workspace = tmp,
     style = "instructions",
-    packages = c("rxode2", "nlmixr2")
+    tasks = c("simulation", "estimation")
   )
-  # Two package skill files plus the single combined ecosystem agent.
+  # Two task skill files plus the single combined ecosystem agent.
   expect_length(files, 3)
   expect_true(all(file.exists(files)))
   expect_true(any(grepl("nlmixr2verse.instructions.md$", files)))
+  # The skill's own description is carried into the frontmatter (quoted).
+  sim <- readLines(grep("simulation.instructions.md$", files, value = TRUE))
+  expect_match(sim[3], '^description: ".*simulate.*"$')
 })
 
 test_that("install_claude_code flags out-of-date files when overwrite = FALSE", {
@@ -317,30 +369,31 @@ test_that("install_claude_code is quiet about drift when nothing changed", {
 
 test_that("install_positron instructions flags out-of-date files", {
   tmp <- withr::local_tempdir()
-  install_positron(workspace = tmp, style = "instructions", packages = "rxode2")
-  f <- file.path(tmp, ".github", "instructions", "rxode2.instructions.md")
+  install_positron(workspace = tmp, style = "instructions", tasks = "simulation")
+  f <- file.path(tmp, ".github", "instructions", "simulation.instructions.md")
   writeLines("stale", f)
 
   expect_message(
-    install_positron(workspace = tmp, style = "instructions", packages = "rxode2"),
+    install_positron(workspace = tmp, style = "instructions", tasks = "simulation"),
     "out of date"
   )
 })
 
 test_that("install_positron instructions style prunes obsolete files", {
   tmp <- withr::local_tempdir()
-  install_positron(workspace = tmp, style = "instructions", packages = "rxode2")
+  install_positron(workspace = tmp, style = "instructions", tasks = "simulation")
   dir <- file.path(tmp, ".github", "instructions")
 
-  # Simulate a previously installed, now-unshipped instruction file.
-  legacy <- file.path(dir, "babelmixr2-old.instructions.md")
+  # Simulate a previously installed, now-unshipped instruction file (the old
+  # per-package layout).
+  legacy <- file.path(dir, "rxode2.instructions.md")
   writeLines("legacy", legacy)
-  cat("babelmixr2-old.instructions.md\n",
+  cat("rxode2.instructions.md\n",
       file = file.path(dir, ".nlmixr2llm-manifest"), append = TRUE)
 
   install_positron(workspace = tmp, style = "instructions",
-                   packages = "rxode2", overwrite = TRUE)
+                   tasks = "simulation", overwrite = TRUE)
 
   expect_false(file.exists(legacy))
-  expect_true(file.exists(file.path(dir, "rxode2.instructions.md")))
+  expect_true(file.exists(file.path(dir, "simulation.instructions.md")))
 })
