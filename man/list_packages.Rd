@@ -4,18 +4,21 @@
 \alias{list_packages}
 \title{List the nlmixr2-universe packages covered by this package}
 \usage{
-list_packages()
+list_packages(tasks = NULL)
+}
+\arguments{
+\item{tasks}{Character vector of tasks (from [list_tasks()]) to restrict
+the result to. Defaults to all tasks.}
 }
 \value{
-Character vector of package names with skill content shipped by
-  `nlmixr2llm`.
+Character vector of package names.
 }
 \description{
-Each covered package ships a skill (`inst/skills/<package>/SKILL.md`). The
-ecosystem is also covered by a single combined agent, `nlmixr2verse` (see
-[list_agents()]), which is not itself a package and is therefore not listed
-here.
+Packages are covered through the task skills (see [list_tasks()]); this
+helper reports which packages the bundled content addresses, optionally
+restricted to a subset of tasks.
 }
 \examples{
 list_packages()
+list_packages(tasks = "interop")
 }

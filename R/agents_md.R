@@ -11,27 +11,31 @@
 #' [install_claude_code()].
 #'
 #' @param path Project root. Defaults to the current working directory.
-#' @param packages Character vector of nlmixr2-universe packages to include.
-#'   Defaults to all available packages.
+#' @param tasks Character vector of tasks whose skills to include. Defaults to
+#'   all available tasks (see [list_tasks()]).
 #' @param mode How to handle an existing file: `"write"` (default),
 #'   `"append"`, or `"error"`.
 #' @param include Which content to include: `"both"` (default), `"agents"`,
 #'   or `"skills"`.
+#' @param references If `TRUE`, also include each skill's supporting reference
+#'   files (see [list_skill_files()]). Defaults to `FALSE`.
 #' @return Invisibly, the path written.
 #' @export
 #' @examples
 #' \dontrun{
-#' install_agents_md(path = ".", packages = c("rxode2", "nlmixr2"))
+#' install_agents_md(path = ".", tasks = c("simulation", "estimation"))
 #' }
 install_agents_md <- function(path = ".",
-                              packages = NULL,
+                              tasks = NULL,
                               mode = c("write", "append", "error"),
-                              include = c("both", "agents", "skills")) {
+                              include = c("both", "agents", "skills"),
+                              references = FALSE) {
   install_codex(
     scope = "project",
-    packages = packages,
+    tasks = tasks,
     path = path,
     mode = mode,
-    include = include
+    include = include,
+    references = references
   )
 }

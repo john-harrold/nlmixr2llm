@@ -6,22 +6,26 @@
 \usage{
 install_agents_md(
   path = ".",
-  packages = NULL,
+  tasks = NULL,
   mode = c("write", "append", "error"),
-  include = c("both", "agents", "skills")
+  include = c("both", "agents", "skills"),
+  references = FALSE
 )
 }
 \arguments{
 \item{path}{Project root. Defaults to the current working directory.}
 
-\item{packages}{Character vector of nlmixr2-universe packages to include.
-Defaults to all available packages.}
+\item{tasks}{Character vector of tasks whose skills to include. Defaults to
+all available tasks (see [list_tasks()]).}
 
 \item{mode}{How to handle an existing file: `"write"` (default),
 `"append"`, or `"error"`.}
 
 \item{include}{Which content to include: `"both"` (default), `"agents"`,
 or `"skills"`.}
+
+\item{references}{If `TRUE`, also include each skill's supporting reference
+files (see [list_skill_files()]). Defaults to `FALSE`.}
 }
 \value{
 Invisibly, the path written.
@@ -40,6 +44,6 @@ For Codex-specific installation that also supports the user-level
 }
 \examples{
 \dontrun{
-install_agents_md(path = ".", packages = c("rxode2", "nlmixr2"))
+install_agents_md(path = ".", tasks = c("simulation", "estimation"))
 }
 }

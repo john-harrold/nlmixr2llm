@@ -8,14 +8,15 @@
     {
       "name": "nlmixr2llm",
       "source": ".",
-      "description": "Bundled skills and agents for rxode2, nlmixr2, nonmem2rx, monolix2rx, and babelmixr2.",
-      "version": "0.1.0",
+      "description": "Task-oriented skills (simulation, estimation, reporting, interop with NONMEM/Monolix) and an orchestrating agent for the nlmixr2 ecosystem.",
+      "version": "0.2.0",
       "category": "data-science",
       "keywords": [
         "pharmacometrics",
         "popPK",
         "nlmixr2",
         "rxode2",
+        "nonmem",
         "R"
       ]
     }

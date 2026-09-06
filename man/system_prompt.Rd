@@ -4,33 +4,41 @@
 \alias{system_prompt}
 \title{Build a combined system prompt for use with any LLM client}
 \usage{
-system_prompt(packages = NULL, include = c("both", "agents", "skills"))
+system_prompt(
+  tasks = NULL,
+  include = c("both", "agents", "skills"),
+  references = FALSE
+)
 }
 \arguments{
-\item{packages}{Character vector of nlmixr2-universe packages whose skills
-to include. Defaults to all available packages (see [list_packages()]).}
+\item{tasks}{Character vector of tasks whose skills to include. Defaults to
+all available tasks (see [list_tasks()]).}
 
 \item{include}{Which content to include: `"both"` (default), `"agents"`, or
 `"skills"`.}
+
+\item{references}{If `TRUE`, also append each selected skill's supporting
+reference files (see [list_skill_files()]) after its `SKILL.md`. Defaults
+to `FALSE`, which keeps the prompt compact.}
 }
 \value{
 A length-one character string.
 }
 \description{
-Concatenates the combined `nlmixr2verse` agent and the per-package skill
+Concatenates the combined `nlmixr2verse` agent and the per-task skill
 content into a single character string suitable for use as a system prompt
 with `ellmer`, the Anthropic SDK, the OpenAI SDK, or any other LLM client.
 YAML frontmatter is stripped so the result is plain markdown.
 }
 \details{
 There is a single ecosystem-wide agent (`nlmixr2verse`) rather than one per
-package, so when agents are requested it is always included in full
-regardless of `packages`; `packages` only subsets the skills.
+task, so when agents are requested it is always included in full regardless
+of `tasks`; `tasks` only subsets the skills.
 }
 \examples{
-prompt <- system_prompt(packages = "rxode2")
+prompt <- system_prompt(tasks = "simulation")
 nchar(prompt)
 }
 \seealso{
-[list_packages()], [get_agent()], [get_skill()]
+[list_tasks()], [get_agent()], [get_skill()]
 }

@@ -1,16 +1,20 @@
 Package: nlmixr2llm
 Title: LLM Instructions for the 'nlmixr2' Pharmacometrics Ecosystem
-Version: 0.1.0
+Version: 0.2.0
 Authors@R: person(given = "John", family = "Harrold",
                   email = "john.m.harrold@gmail.com",
                   role = c("aut", "cre", "cph"))
 Description: Ships agent and skill documentation that helps large language
-    models write correct code for the 'nlmixr2' pharmacometrics ecosystem
-    ('rxode2', 'nlmixr2', 'nonmem2rx', 'monolix2rx', 'babelmixr2'). Provides
-    accessor functions to use the content as a system prompt with any large
-    language model client (e.g., the 'ellmer' package) and installer functions
-    that write the content into the conventions expected by Claude Code, OpenAI
-    Codex CLI, Positron Assistant, and other tools that read 'AGENTS.md'.
+    models write correct code for the 'nlmixr2' pharmacometrics ecosystem,
+    organized around the tasks a pharmacometrician performs: simulation
+    ('rxode2', 'nlmixr2lib'), estimation ('nlmixr2', 'nlmixr2extra'), reporting
+    ('nlmixr2plot', 'xpose.nlmixr2', 'ggPMX', 'nlmixr2rpt', 'shinyMixR'), and
+    interoperability with proprietary software such as 'NONMEM' and 'Monolix'
+    ('babelmixr2', 'nonmem2rx', 'monolix2rx'). Provides accessor functions to
+    use the content as a system prompt with any large language model client
+    (e.g., the 'ellmer' package) and installer functions that write the content
+    into the conventions expected by Claude Code, OpenAI Codex CLI, Positron
+    Assistant, and other tools that read 'AGENTS.md'.
 License: BSD_3_clause + file LICENSE
 Encoding: UTF-8
 URL: https://github.com/john-harrold/nlmixr2llm, https://john-harrold.github.io/nlmixr2llm/

@@ -1,7 +1,7 @@
 {
   "name": "nlmixr2llm",
-  "version": "0.1.0",
-  "description": "Skills and agents for the nlmixr2 pharmacometric ecosystem in R: rxode2 (ODE-based PK/PD), nlmixr2 (popPK/PD modeling), nonmem2rx (NONMEM → rxode2), monolix2rx (Monolix → rxode2), and babelmixr2 (run nlmixr2 models on NONMEM/Monolix/PKNCA).",
+  "version": "0.2.0",
+  "description": "Task-oriented skills and an orchestrating agent for the nlmixr2 pharmacometric ecosystem in R: simulation (rxode2), estimation (nlmixr2), reporting (GOF, VPC, tables, Word/PowerPoint via nlmixr2rpt, xpose, ggPMX), and interop with NONMEM/Monolix/PKNCA (babelmixr2, nonmem2rx, monolix2rx).",
   "author": {
     "name": "john-harrold"
   },
@@ -14,6 +14,9 @@
     "pharmacometrics",
     "popPK",
     "popPD",
+    "simulation",
+    "estimation",
+    "reporting",
     "nlmixr2",
     "rxode2",
     "nonmem",
