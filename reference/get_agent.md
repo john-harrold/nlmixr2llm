@@ -26,5 +26,5 @@ YAML frontmatter.
 cat(substr(get_agent(), 1, 200))
 #> ---
 #> name: nlmixr2verse
-#> description: Specialist for the whole nlmixr2 pharmacometric modeling ecosystem in R. Use for any task involving rxode2 (author/simulate ODE-based PK/PD models), nlmixr2 (fit po
+#> description: Specialist for pharmacometric modeling tasks in R with the nlmixr2 ecosystem. Use for simulation (author and simulate ODE PK/PD models, event tables, population and
 ```

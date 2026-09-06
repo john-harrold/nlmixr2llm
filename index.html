@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">nlmixr2llm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -56,7 +56,7 @@
 <!-- badges: start -->
 
 <p>LLM-facing documentation for the <a href="https://nlmixr2.org/" class="external-link">nlmixr2</a> pharmacometric modeling ecosystem in R, distributed as an R package and as a Claude Code plugin.</p>
-<p>The same content — a single combined <code>nlmixr2verse</code> agent plus per-package skill files for <code>rxode2</code>, <code>nlmixr2</code>, <code>nonmem2rx</code>, <code>monolix2rx</code>, and <code>babelmixr2</code> — is shipped two ways:</p>
+<p>The content is organized around the <strong>tasks</strong> a pharmacometrician performs rather than around individual packages: a single <code>nlmixr2verse</code> agent routes work across four task skills — <code>simulation</code>, <code>estimation</code>, <code>reporting</code>, and <code>interop</code> (NONMEM / Monolix / PKNCA). The same content is shipped two ways:</p>
 <ul>
 <li>
 <strong>As an R package</strong>, with accessor functions for use as a system prompt with any LLM client (<code>ellmer</code>, the Anthropic SDK, the OpenAI SDK, …) and installers that write the files into the locations expected by Claude Code, OpenAI Codex CLI, Positron Assistant, and other tools that follow the <a href="https://agents.md" class="external-link"><code>AGENTS.md</code></a> convention.</li>
@@ -66,7 +66,6 @@
 <div class="section level2">
 <h2 id="coverage">Coverage<a class="anchor" aria-label="anchor" href="#coverage"></a>
 </h2>
-<p>A single combined <strong><code>nlmixr2verse</code></strong> agent spans the whole ecosystem (the orchestration layer), and each package ships a <strong>skill</strong> for on-demand depth:</p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -74,39 +73,42 @@
 <col width="33%">
 </colgroup>
 <thead><tr>
-<th>Package</th>
-<th>Skill</th>
-<th>Purpose</th>
+<th>Task</th>
+<th>What it covers</th>
+<th>Packages</th>
 </tr></thead>
 <tbody>
 <tr>
-<td><a href="https://github.com/nlmixr2/rxode2" class="external-link"><code>rxode2</code></a></td>
-<td>✓</td>
-<td>ODE-based PK/PD modeling and simulation</td>
+<td><code>simulation</code></td>
+<td>Author and debug ODE PK/PD models, event tables, single-subject / population / clinical-trial simulation, parameter uncertainty, resampling fitted subjects, the model library</td>
+<td>
+<a href="https://github.com/nlmixr2/rxode2" class="external-link"><code>rxode2</code></a>, <a href="https://github.com/nlmixr2/nlmixr2lib" class="external-link"><code>nlmixr2lib</code></a>
+</td>
 </tr>
 <tr>
-<td><a href="https://github.com/nlmixr2/nlmixr2" class="external-link"><code>nlmixr2</code></a></td>
-<td>✓</td>
-<td>Population PK/PD parameter estimation (SAEM, FOCEi, …)</td>
+<td><code>estimation</code></td>
+<td>Fit population PK/PD models (SAEM, FOCEi, nlme), model building, covariates, standard errors, bootstrap, likelihood profiling, model comparison</td>
+<td>
+<a href="https://github.com/nlmixr2/nlmixr2" class="external-link"><code>nlmixr2</code></a>, <a href="https://github.com/nlmixr2/nlmixr2extra" class="external-link"><code>nlmixr2extra</code></a>, <code>nlmixr2lib</code>
+</td>
 </tr>
 <tr>
-<td><a href="https://github.com/nlmixr2/nonmem2rx" class="external-link"><code>nonmem2rx</code></a></td>
-<td>✓</td>
-<td>Convert finished NONMEM runs into rxode2 / nlmixr2 objects</td>
+<td><code>reporting</code></td>
+<td>Goodness-of-fit diagnostics, VPCs, augmented predictions, parameter tables, Word / PowerPoint / R Markdown reports, interactive review</td>
+<td>
+<a href="https://github.com/nlmixr2/nlmixr2plot" class="external-link"><code>nlmixr2plot</code></a>, <a href="https://github.com/nlmixr2/xpose.nlmixr2" class="external-link"><code>xpose.nlmixr2</code></a>, <a href="https://github.com/ggPMXdevelopment/ggPMX" class="external-link"><code>ggPMX</code></a>, <a href="https://github.com/nlmixr2/nlmixr2rpt" class="external-link"><code>nlmixr2rpt</code></a>, <a href="https://github.com/RichardHooijmaijers/shinyMixR" class="external-link"><code>shinyMixR</code></a>
+</td>
 </tr>
 <tr>
-<td><a href="https://github.com/nlmixr2/monolix2rx" class="external-link"><code>monolix2rx</code></a></td>
-<td>✓</td>
-<td>Convert Monolix projects into rxode2 / nlmixr2 objects</td>
-</tr>
-<tr>
-<td><a href="https://github.com/nlmixr2/babelmixr2" class="external-link"><code>babelmixr2</code></a></td>
-<td>✓</td>
-<td>Fit nlmixr2 models via NONMEM, Monolix, or PKNCA backends</td>
+<td><code>interop</code></td>
+<td>Run an nlmixr2 model in NONMEM / Monolix / PKNCA; import finished NONMEM or Monolix runs into R and qualify the translation; cross-engine comparison</td>
+<td>
+<a href="https://github.com/nlmixr2/babelmixr2" class="external-link"><code>babelmixr2</code></a>, <a href="https://github.com/nlmixr2/nonmem2rx" class="external-link"><code>nonmem2rx</code></a>, <a href="https://github.com/nlmixr2/monolix2rx" class="external-link"><code>monolix2rx</code></a>
+</td>
 </tr>
 </tbody>
 </table>
-<p>The <code>nlmixr2verse</code> agent covers all five packages and the end-to-end workflow that connects them (author in rxode2 → fit in nlmixr2 → run on other engines with babelmixr2 → import legacy runs with nonmem2rx / monolix2rx).</p>
+<p>Each skill is a directory: a compact <code>SKILL.md</code> (~8 KiB) plus <code>references/*.md</code> files with extra depth (engine-specific NONMEM / Monolix notes, population-simulation patterns, model-building and precision recipes, the nlmixr2rpt YAML structure). The <code>nlmixr2verse</code> agent (~8 KiB) holds the ecosystem map by task, routing rules, the shared model-language conventions, and how the stages hand off to one another (simulate ⇄ estimate → report; import → qualify → simulate).</p>
 </div>
 <div class="section level2">
 <h2 id="install-r-package">Install (R package)<a class="anchor" aria-label="anchor" href="#install-r-package"></a>
@@ -124,11 +126,12 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/john-harrold/nlmixr2llm" class="external-link">nlmixr2llm</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">prompt</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/system_prompt.html">system_prompt</a></span><span class="op">(</span>packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rxode2"</span>, <span class="st">"nlmixr2"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">prompt</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/system_prompt.html">system_prompt</a></span><span class="op">(</span>tasks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simulation"</span>, <span class="st">"estimation"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Example: with ellmer</span></span>
 <span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu">ellmer</span><span class="fu">::</span><span class="fu">chat_anthropic</span><span class="op">(</span>system_prompt <span class="op">=</span> <span class="va">prompt</span><span class="op">)</span></span>
-<span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"Write a one-compartment PK model with first-order absorption in rxode2."</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"Write a one-compartment PK model with first-order absorption and simulate 100 mg q12h for 5 days."</span><span class="op">)</span></span></code></pre></div>
+<p>Add <code>references = TRUE</code> to include each skill’s supporting reference files.</p>
 </div>
 <div class="section level3">
 <h3 id="install-into-claude-code">Install into Claude Code<a class="anchor" aria-label="anchor" href="#install-into-claude-code"></a>
@@ -145,11 +148,11 @@
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Project AGENTS.md at the repo root</span></span>
-<span><span class="fu"><a href="reference/install_codex.html">install_codex</a></span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"project"</span>, packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rxode2"</span>, <span class="st">"nlmixr2"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/install_codex.html">install_codex</a></span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"project"</span>, tasks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simulation"</span>, <span class="st">"estimation"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Global ~/.codex/AGENTS.md</span></span>
-<span><span class="fu"><a href="reference/install_codex.html">install_codex</a></span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"user"</span>, mode <span class="op">=</span> <span class="st">"append"</span><span class="op">)</span></span></code></pre></div>
-<p>Codex enforces a default 32 KiB cap on combined <code>AGENTS.md</code> content. The full corpus (~62 KiB) exceeds that. The combined <code>nlmixr2verse</code> agent is ~29 KiB on its own and is included whole whenever agents are requested, so <code>packages = ...</code> only subsets the skills. For Codex, install <code>include = "agents"</code> (just the agent, ~29 KiB) or <code>include = "skills"</code> with a <code>packages = ...</code> subset.</p>
+<span><span class="fu"><a href="reference/install_codex.html">install_codex</a></span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"user"</span>, include <span class="op">=</span> <span class="st">"agents"</span>, mode <span class="op">=</span> <span class="st">"append"</span><span class="op">)</span></span></code></pre></div>
+<p>Codex enforces a default 32 KiB cap on combined <code>AGENTS.md</code> content. The agent plus all four skills is ~37 KiB; the agent alone is ~8 KiB and each skill ~7-8 KiB, so the agent plus up to three skills fits (~29 KiB). <code><a href="reference/install_codex.html">install_codex()</a></code> warns when the written file exceeds the cap.</p>
 </div>
 <div class="section level3">
 <h3 id="install-into-positron-assistant">Install into Positron Assistant<a class="anchor" aria-label="anchor" href="#install-into-positron-assistant"></a>
@@ -158,7 +161,7 @@
 <code class="sourceCode R"><span><span class="co"># Project-root agents.md (also picked up by Codex, Cursor, Aider, Zed, ...)</span></span>
 <span><span class="fu"><a href="reference/install_positron.html">install_positron</a></span><span class="op">(</span>workspace <span class="op">=</span> <span class="st">"."</span>, style <span class="op">=</span> <span class="st">"agents_md"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Per-package .github/instructions/*.instructions.md with applyTo: "**/*.R"</span></span>
+<span><span class="co"># Per-task .github/instructions/*.instructions.md with applyTo: "**/*.R"</span></span>
 <span><span class="fu"><a href="reference/install_positron.html">install_positron</a></span><span class="op">(</span>workspace <span class="op">=</span> <span class="st">"."</span>, style <span class="op">=</span> <span class="st">"instructions"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -166,13 +169,13 @@
 <a class="anchor" aria-label="anchor" href="#install-for-any-tool-that-reads-agentsmd"></a>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/install_agents_md.html">install_agents_md</a></span><span class="op">(</span>path <span class="op">=</span> <span class="st">"."</span>, packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rxode2"</span>, <span class="st">"nlmixr2"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="reference/install_agents_md.html">install_agents_md</a></span><span class="op">(</span>path <span class="op">=</span> <span class="st">"."</span>, tasks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simulation"</span>, <span class="st">"estimation"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Covered by the <a href="https://agents.md" class="external-link"><code>agents.md</code></a> cross-tool spec: Codex, Cursor, Aider, GitHub Copilot, Zed, Warp, Jules, Devin, and others.</p>
 </div>
 <div class="section level3">
 <h3 id="keeping-installs-in-sync">Keeping installs in sync<a class="anchor" aria-label="anchor" href="#keeping-installs-in-sync"></a>
 </h3>
-<p>The installers write independent copies, so re-run them after upgrading the package (pass <code>overwrite = TRUE</code> / <code>mode = "write"</code> to refresh existing files). <code><a href="reference/install_claude_code.html">install_claude_code()</a></code> and <code>install_positron(style = "instructions")</code> keep a manifest (<code>.nlmixr2llm-manifest</code>) and, by default (<code>prune = TRUE</code>), remove files they installed in an earlier version but no longer ship — so a renamed agent or dropped package doesn’t leave an orphan behind. Only files nlmixr2llm created are ever removed.</p>
+<p>The installers write independent copies, so re-run them after upgrading the package (pass <code>overwrite = TRUE</code> / <code>mode = "write"</code> to refresh existing files). <code><a href="reference/install_claude_code.html">install_claude_code()</a></code> and <code>install_positron(style = "instructions")</code> keep a manifest (<code>.nlmixr2llm-manifest</code>) and, by default (<code>prune = TRUE</code>), remove files they installed in an earlier version but no longer ship — so upgrading from the per-package layout of 0.1.0 to the task layout removes the old <code>rxode2</code>, <code>nlmixr2</code>, … skills automatically. Only files nlmixr2llm created are ever removed.</p>
 <p>To check whether your installed content is current without reinstalling, run <code><a href="reference/nlmixr2llm_status.html">nlmixr2llm_status()</a></code> — it inspects every install target (Claude Code user/project, Codex / <code>AGENTS.md</code>, and both Positron styles), reports any files that are out of date, and prints the refresh command for each. The <code>nlmixr2verse</code> agent also runs this check itself once per session and tells you when a refresh is available.</p>
 <p>When you load the package interactively (<code><a href="https://github.com/john-harrold/nlmixr2llm" class="external-link">library(nlmixr2llm)</a></code>), it runs this check automatically (read-only) and prints a one-line notice if any installed copy is out of date — staying silent otherwise. Disable it with <code>options(nlmixr2llm.startup_check = FALSE)</code>.</p>
 </div>
@@ -199,35 +202,44 @@
 <tbody>
 <tr>
 <td>
-<code><a href="reference/list_packages.html">list_packages()</a></code>, <code><a href="reference/list_agents.html">list_agents()</a></code>, <code><a href="reference/list_skills.html">list_skills()</a></code>
+<code><a href="reference/list_tasks.html">list_tasks()</a></code>, <code><a href="reference/list_skills.html">list_skills()</a></code>, <code><a href="reference/list_agents.html">list_agents()</a></code>
 </td>
-<td>Discovery</td>
+<td>Discovery (skills are one per task)</td>
+</tr>
+<tr>
+<td><code>list_packages(tasks)</code></td>
+<td>Which nlmixr2-universe packages the selected tasks cover</td>
+</tr>
+<tr>
+<td><code>list_skill_files(task)</code></td>
+<td>
+<code>SKILL.md</code> plus the supporting reference files of a skill</td>
 </tr>
 <tr>
 <td>
-<code><a href="reference/get_agent.html">get_agent()</a></code>, <code>get_skill(pkg)</code>
+<code><a href="reference/get_agent.html">get_agent()</a></code>, <code>get_skill(task)</code>
 </td>
 <td>Raw markdown (<code><a href="reference/get_agent.html">get_agent()</a></code> returns the combined <code>nlmixr2verse</code> agent)</td>
 </tr>
 <tr>
-<td><code>system_prompt(packages, include)</code></td>
+<td><code>system_prompt(tasks, include, references)</code></td>
 <td>Combined prompt for LLM clients</td>
 </tr>
 <tr>
-<td><code>install_claude_code(scope, packages, ...)</code></td>
+<td><code>install_claude_code(scope, tasks, ...)</code></td>
 <td>Claude Code skill/agent tree</td>
 </tr>
 <tr>
-<td><code>install_codex(scope, packages, mode, include)</code></td>
+<td><code>install_codex(scope, tasks, mode, include, references)</code></td>
 <td>Codex CLI <code>AGENTS.md</code>
 </td>
 </tr>
 <tr>
-<td><code>install_agents_md(path, packages, ...)</code></td>
+<td><code>install_agents_md(path, tasks, ...)</code></td>
 <td>Project-root <code>AGENTS.md</code> for any <code>agents.md</code>-aware tool</td>
 </tr>
 <tr>
-<td><code>install_positron(workspace, style, packages, ...)</code></td>
+<td><code>install_positron(workspace, style, tasks, ...)</code></td>
 <td>Positron Assistant instructions</td>
 </tr>
 <tr>
@@ -249,17 +261,29 @@
 │   ├── claude_code.R
 │   ├── codex.R
 │   ├── agents_md.R
-│   └── positron.R
+│   ├── positron.R
+│   ├── status.R
+│   └── sync.R
 ├── man/
 ├── .claude-plugin/        # Claude Code plugin manifest (not shipped in R tarball)
 └── inst/
     ├── agents/
-    └── skills/</code></pre>
+    │   └── nlmixr2verse.md
+    └── skills/
+        ├── simulation/    # SKILL.md + references/population-simulation.md
+        ├── estimation/    # SKILL.md + references/model-building.md
+        ├── reporting/     # SKILL.md + references/nlmixr2rpt.md
+        └── interop/       # SKILL.md + references/nonmem.md, monolix.md</code></pre>
 </div>
 <div class="section level2">
 <h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
 </h2>
-<p>The skill and agent files are plain Markdown with YAML frontmatter — edit them in <code>inst/agents/</code> and <code>inst/skills/</code>. Vignette references point at filenames in each package’s source repo (<code>github.com/nlmixr2/&lt;pkg&gt;/tree/main/vignettes/</code>); please verify any new references against the live repo before merging.</p>
+<p>The skill and agent files are plain Markdown with YAML frontmatter — edit them in <code>inst/agents/</code> and <code>inst/skills/</code>. Keep each <code>SKILL.md</code> compact and push depth into that skill’s <code>references/</code>. Vignette references point at filenames in each package’s source repo (<code>github.com/nlmixr2/&lt;pkg&gt;/tree/main/vignettes/</code>); please verify any new references against the live repo before merging.</p>
+<p>Every fenced R block in the agent and skills is executed by an opt-in test against a real fit, so a snippet that stops working with a new release of an nlmixr2-universe package shows up as a test failure. It needs the modeling stack installed and takes several minutes:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Sys.setenv.html" class="external-link">Sys.setenv</a></span><span class="op">(</span>NLMIXR2LLM_RUN_EXAMPLES <span class="op">=</span> <span class="st">"true"</span><span class="op">)</span></span>
+<span><span class="fu">testthat</span><span class="fu">::</span><span class="fu"><a href="https://testthat.r-lib.org/reference/test_package.html" class="external-link">test_local</a></span><span class="op">(</span>filter <span class="op">=</span> <span class="st">"examples"</span><span class="op">)</span></span></code></pre></div>
+<p>The same tests run in CI in a dedicated job (<code>.github/workflows/skill-examples.yaml</code>) that installs the modeling stack via <code>extra-packages</code> and runs on content changes and on a weekly schedule, so upstream API drift is caught without the main <code>R-CMD-check</code> matrix having to carry those dependencies. Blocks that require NONMEM or Monolix, or that only show placeholder paths, are listed in <code>example_skips</code> in <code>tests/testthat/helper-examples.R</code>. Snippets should assume the fixture objects documented there (<code>fit</code>, <code>mod</code>, <code>ev</code>, <code>data</code>, <code>obnd</code>, …) or define what they use.</p>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>
@@ -303,6 +327,7 @@
 <ul class="list-unstyled">
 <li><a href="https://github.com/john-harrold/nlmixr2llm/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/john-harrold/nlmixr2llm/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 <li><a href="https://github.com/john-harrold/nlmixr2llm/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/john-harrold/nlmixr2llm/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown"></a></li>
+<li><a href="https://github.com/john-harrold/nlmixr2llm/actions/workflows/skill-examples.yaml" class="external-link"><img src="https://github.com/john-harrold/nlmixr2llm/actions/workflows/skill-examples.yaml/badge.svg" alt="skill-examples"></a></li>
 </ul>
 </div>
 
@@ -315,7 +340,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer>

@@ -13,7 +13,7 @@ CLI, Cursor, Aider, GitHub Copilot, Zed, Warp, Jules, and Devin."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">nlmixr2llm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,9 +52,10 @@ CLI, Cursor, Aider, GitHub Copilot, Zed, Warp, Jules, and Devin.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">install_agents_md</span><span class="op">(</span></span>
 <span>  path <span class="op">=</span> <span class="st">"."</span>,</span>
-<span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tasks <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"write"</span>, <span class="st">"append"</span>, <span class="st">"error"</span><span class="op">)</span>,</span>
-<span>  include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"both"</span>, <span class="st">"agents"</span>, <span class="st">"skills"</span><span class="op">)</span></span>
+<span>  include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"both"</span>, <span class="st">"agents"</span>, <span class="st">"skills"</span><span class="op">)</span>,</span>
+<span>  references <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -66,9 +67,9 @@ CLI, Cursor, Aider, GitHub Copilot, Zed, Warp, Jules, and Devin.</p>
 <dd><p>Project root. Defaults to the current working directory.</p></dd>
 
 
-<dt id="arg-packages">packages<a class="anchor" aria-label="anchor" href="#arg-packages"></a></dt>
-<dd><p>Character vector of nlmixr2-universe packages to include.
-Defaults to all available packages.</p></dd>
+<dt id="arg-tasks">tasks<a class="anchor" aria-label="anchor" href="#arg-tasks"></a></dt>
+<dd><p>Character vector of tasks whose skills to include. Defaults to
+all available tasks (see [list_tasks()]).</p></dd>
 
 
 <dt id="arg-mode">mode<a class="anchor" aria-label="anchor" href="#arg-mode"></a></dt>
@@ -79,6 +80,11 @@ Defaults to all available packages.</p></dd>
 <dt id="arg-include">include<a class="anchor" aria-label="anchor" href="#arg-include"></a></dt>
 <dd><p>Which content to include: `"both"` (default), `"agents"`,
 or `"skills"`.</p></dd>
+
+
+<dt id="arg-references">references<a class="anchor" aria-label="anchor" href="#arg-references"></a></dt>
+<dd><p>If `TRUE`, also include each skill's supporting reference
+files (see [list_skill_files()]). Defaults to `FALSE`.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -96,7 +102,7 @@ or `"skills"`.</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="fu">install_agents_md</span><span class="op">(</span>path <span class="op">=</span> <span class="st">"."</span>, packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rxode2"</span>, <span class="st">"nlmixr2"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">install_agents_md</span><span class="op">(</span>path <span class="op">=</span> <span class="st">"."</span>, tasks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simulation"</span>, <span class="st">"estimation"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
@@ -109,7 +115,7 @@ or `"skills"`.</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

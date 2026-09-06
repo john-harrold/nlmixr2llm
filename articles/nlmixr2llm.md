@@ -1,11 +1,19 @@
 # Using nlmixr2llm with different LLM clients and IDEs
 
 `nlmixr2llm` ships LLM-facing documentation for the nlmixr2
-pharmacometric modeling ecosystem: `rxode2`, `nlmixr2`, `nonmem2rx`,
-`monolix2rx`, and `babelmixr2`. It bundles a single combined
-`nlmixr2verse` agent (the orchestration layer spanning all five
-packages) plus one skill per package for on-demand depth. The same
-content can be used three ways:
+pharmacometric modeling ecosystem, organized around the tasks a
+pharmacometrician performs rather than around individual packages. It
+bundles a single combined `nlmixr2verse` agent (the orchestration layer)
+plus one skill per task for on-demand depth:
+
+| Task | Covers | Packages |
+|----|----|----|
+| `simulation` | ODE model authoring, event tables, population and trial simulation | rxode2, nlmixr2lib |
+| `estimation` | Fitting population PK/PD models, model building, precision | nlmixr2, nlmixr2extra, nlmixr2lib |
+| `reporting` | GOF diagnostics, VPCs, parameter tables, Word / PowerPoint reports | nlmixr2plot, xpose.nlmixr2, ggPMX, nlmixr2rpt, shinyMixR |
+| `interop` | Running models in NONMEM / Monolix / PKNCA; importing and qualifying finished runs | babelmixr2, nonmem2rx, monolix2rx |
+
+The same content can be used three ways:
 
 1.  **As a system prompt** with any LLM client library (the
     [`ellmer`](https://ellmer.tidyverse.org) R package, the Anthropic
@@ -27,31 +35,48 @@ library(nlmixr2llm)
 
 ``` r
 
-list_packages()
-#> [1] "babelmixr2" "monolix2rx" "nlmixr2"    "nonmem2rx"  "rxode2"
+list_tasks()
+#> [1] "estimation" "interop"    "reporting"  "simulation"
 list_agents()
 #> [1] "nlmixr2verse"
-list_skills()
-#> [1] "babelmixr2" "monolix2rx" "nlmixr2"    "nonmem2rx"  "rxode2"
+list_packages()
+#>  [1] "babelmixr2"    "ggPMX"         "monolix2rx"    "nlmixr2"      
+#>  [5] "nlmixr2est"    "nlmixr2extra"  "nlmixr2lib"    "nlmixr2plot"  
+#>  [9] "nlmixr2rpt"    "nonmem2rx"     "rxode2"        "shinyMixR"    
+#> [13] "xpose.nlmixr2"
+list_packages(tasks = "interop")
+#> [1] "babelmixr2" "monolix2rx" "nonmem2rx"
 ```
 
 [`list_agents()`](https://john-harrold.github.io/nlmixr2llm/reference/list_agents.md)
 returns the single combined `nlmixr2verse` agent;
+[`list_tasks()`](https://john-harrold.github.io/nlmixr2llm/reference/list_tasks.md)
+(equivalently
+[`list_skills()`](https://john-harrold.github.io/nlmixr2llm/reference/list_skills.md))
+enumerates the four task skills, and
 [`list_packages()`](https://john-harrold.github.io/nlmixr2llm/reference/list_packages.md)
-and
-[`list_skills()`](https://john-harrold.github.io/nlmixr2llm/reference/list_skills.md)
-enumerate the five packages whose skills provide per-package depth. You
-can read any single document directly:
+reports which nlmixr2-universe packages those skills cover. You can read
+any single document directly:
 
 ``` r
 
 agent_text <- get_agent()        # the combined nlmixr2verse agent
 substr(agent_text, 1, 200)
-#> [1] "---\nname: nlmixr2verse\ndescription: Specialist for the whole nlmixr2 pharmacometric modeling ecosystem in R. Use for any task involving rxode2 (author/simulate ODE-based PK/PD models), nlmixr2 (fit po"
+#> [1] "---\nname: nlmixr2verse\ndescription: Specialist for pharmacometric modeling tasks in R with the nlmixr2 ecosystem. Use for simulation (author and simulate ODE PK/PD models, event tables, population and"
 
-skill_text <- get_skill("rxode2")
+skill_text <- get_skill("simulation")
 substr(skill_text, 1, 200)
-#> [1] "---\nname: rxode2\ndescription: Use this skill when the user is creating, editing, or running ODE-based pharmacometric models with the R package rxode2. Triggers include writing PK/PD models with `ini({"
+#> [1] "---\nname: simulation\ndescription: Use this skill when the user wants to simulate a pharmacokinetic or pharmacodynamic model in R with the nlmixr2 ecosystem — writing or editing an ODE model, building "
+```
+
+A skill is a directory, not a single file: `SKILL.md` carries the
+compact guidance and `references/*.md` add depth an agent can pull in on
+demand.
+
+``` r
+
+list_skill_files("interop")
+#> [1] "SKILL.md"              "references/monolix.md" "references/nonmem.md"
 ```
 
 ## 1. Use as a system prompt with any LLM client
@@ -63,15 +88,16 @@ to whichever client you use.
 
 ``` r
 
-prompt <- system_prompt(packages = c("rxode2", "nlmixr2"))
+prompt <- system_prompt(tasks = c("simulation", "estimation"))
 nchar(prompt)
-#> [1] 46084
+#> [1] 23621
 ```
 
 By default
 [`system_prompt()`](https://john-harrold.github.io/nlmixr2llm/reference/system_prompt.md)
-includes both agents and skills for all packages. Subset with
-`packages = ...` or `include = c("agents", "skills")`.
+includes the agent and the skills for all tasks. Subset with
+`tasks = ...` or `include = c("agents", "skills")`, and add
+`references = TRUE` to append each skill’s supporting reference files.
 
 ### With `ellmer` (Anthropic, OpenAI, Gemini, Ollama, …)
 
@@ -84,7 +110,7 @@ built on.
 library(ellmer)
 
 chat <- chat_anthropic(
-  system_prompt = system_prompt(packages = c("rxode2", "nlmixr2")),
+  system_prompt = system_prompt(tasks = c("simulation", "estimation")),
   model = "claude-sonnet-4-6"
 )
 
@@ -109,7 +135,7 @@ req <- httr2::request("https://api.anthropic.com/v1/messages") |>
   httr2::req_body_json(list(
     model = "claude-sonnet-4-6",
     max_tokens = 1024,
-    system = system_prompt(packages = "rxode2"),
+    system = system_prompt(tasks = "simulation"),
     messages = list(list(role = "user", content = "..."))
   ))
 ```
@@ -142,7 +168,7 @@ install_claude_code(scope = "user")
 install_claude_code(scope = "project", path = ".")
 
 # Selective install
-install_claude_code(scope = "user", packages = c("rxode2", "nlmixr2"))
+install_claude_code(scope = "user", tasks = c("simulation", "estimation"))
 
 # Replace existing files
 install_claude_code(scope = "user", overwrite = TRUE)
@@ -159,27 +185,26 @@ it to either location.
 
 # Project AGENTS.md at the repo root
 install_codex(scope = "project", path = ".",
-              packages = c("rxode2", "nlmixr2"))
+              tasks = c("simulation", "estimation"))
 
 # Global ~/.codex/AGENTS.md (append rather than overwrite)
 install_codex(scope = "user", mode = "append")
 ```
 
 Codex enforces a default 32 KiB cap on combined `AGENTS.md` content
-(`project_doc_max_bytes` in `~/.codex/config.toml`). The full corpus
-(~62 KiB) is larger than that. The combined `nlmixr2verse` agent is ~29
-KiB and is always included whole when agents are requested, so
-`packages = ...` only subsets the skills. For Codex you’ll typically
-want to subset:
+(`project_doc_max_bytes` in `~/.codex/config.toml`). The agent plus all
+four skills is ~37 KiB, above the cap. The `nlmixr2verse` agent is ~8
+KiB and is always included whole when agents are requested;
+`tasks = ...` subsets the skills (~8 KiB each). For Codex, pick the
+tasks you actually need:
 
 ``` r
 
-# Just the combined agent (~29 KiB, high-signal), not the long skill files
-install_codex(scope = "project", include = "agents")
+# Agent plus the two most common tasks (~22 KiB); three tasks (~29 KiB) also fit
+install_codex(scope = "project", tasks = c("simulation", "estimation"))
 
-# Or just the skills for the packages you're actually using
-install_codex(scope = "project", include = "skills",
-              packages = c("rxode2", "nlmixr2"))
+# Just the agent (~8 KiB) -- routing and conventions only
+install_codex(scope = "project", include = "agents")
 ```
 
 [`install_codex()`](https://john-harrold.github.io/nlmixr2llm/reference/install_codex.md)
@@ -208,26 +233,27 @@ install_positron(workspace = ".", style = "agents_md")
 > are the *same file*. Installing both into one project means the second
 > call overwrites the first. With default arguments the instruction body
 > is identical so this is harmless; if you give each a different
-> `packages`/`include`, only the last call’s selection survives. On
+> `tasks`/`include`, only the last call’s selection survives. On
 > case-sensitive filesystems (most Linux) they are distinct files.
 > [`nlmixr2llm_status()`](https://john-harrold.github.io/nlmixr2llm/reference/nlmixr2llm_status.md)
 > collapses them into a single reported entry when they resolve to the
 > same file.
 
 **`style = "instructions"`** writes one
-`.github/instructions/<package>.instructions.md` per selected package
-(skill content), plus a single `nlmixr2verse.instructions.md` (the
-combined ecosystem agent), each with `applyTo: "**/*.R"` in its
-frontmatter. Positron attaches the relevant content when the model is
-editing R files. This is the more selective option: the LLM only sees
-this guidance when actually working on R code.
+`.github/instructions/<task>.instructions.md` per selected task (skill
+content, with the skill’s own description in the frontmatter), plus a
+single `nlmixr2verse.instructions.md` (the combined ecosystem agent),
+each with `applyTo: "**/*.R"` in its frontmatter. Positron attaches the
+relevant content when the model is editing R files. This is the more
+selective option: the LLM only sees this guidance when actually working
+on R code.
 
 ``` r
 
 install_positron(
   workspace = ".",
   style = "instructions",
-  packages = c("rxode2", "nlmixr2")
+  tasks = c("simulation", "estimation")
 )
 ```
 
@@ -243,7 +269,7 @@ project-root `AGENTS.md`. Use the generic installer:
 
 ``` r
 
-install_agents_md(path = ".", packages = c("rxode2", "nlmixr2"))
+install_agents_md(path = ".", tasks = c("simulation", "estimation"))
 ```
 
 This is a thin wrapper around `install_codex(scope = "project")` since
@@ -307,13 +333,14 @@ install_positron(workspace = ".", overwrite = TRUE)
 and `install_positron(style = "instructions")` record what they wrote in
 a manifest (`.nlmixr2llm-manifest`) in the install location. On
 re-install they **prune** files this package installed in an earlier
-version but no longer ships — for example, if an agent is renamed or a
-package is dropped, the stale file is removed rather than left behind as
-a duplicate. Pruning is on by default (`prune = TRUE`) and only ever
+version but no longer ships — for example, upgrading from the
+per-package skills of 0.1.0 (`rxode2`, `nlmixr2`, …) to the task skills
+removes the old directories rather than leaving them behind as
+duplicates. Pruning is on by default (`prune = TRUE`) and only ever
 touches files nlmixr2llm itself created; your own agents and skills are
-never removed. Selecting a subset with `packages = ...` does not prune
-the skills of packages you leave out — only content the current version
-no longer ships at all is removed.
+never removed. Selecting a subset with `tasks = ...` does not prune the
+skills of tasks you leave out — only content the current version no
+longer ships at all is removed.
 
 ``` r
 

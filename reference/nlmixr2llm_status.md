@@ -39,7 +39,7 @@ Targets checked: \* \*\*Claude Code\*\* (\`~/.claude/\` user scope and
 compared by content. \* \*\*Codex / \`AGENTS.md\`\*\*
 (\`~/.codex/AGENTS.md\` and \`\<path\>/AGENTS.md\`, the latter shared
 with \[install_agents_md()\]). \* \*\*Positron\*\* \`agents.md\`
-(\`\<path\>/agents.md\`) and per-package \`\*.instructions.md\` files
+(\`\<path\>/agents.md\`) and per-task \`\*.instructions.md\` files
 (\`\<path\>/.github/instructions/\`).
 
 Concatenated single-file targets carry an embedded version stamp, so

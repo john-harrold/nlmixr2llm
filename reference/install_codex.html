@@ -15,7 +15,7 @@ directory."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">nlmixr2llm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,10 +55,11 @@ directory.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">install_codex</span><span class="op">(</span></span>
 <span>  scope <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"user"</span>, <span class="st">"project"</span><span class="op">)</span>,</span>
-<span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  tasks <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  path <span class="op">=</span> <span class="st">"."</span>,</span>
 <span>  mode <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"write"</span>, <span class="st">"append"</span>, <span class="st">"error"</span><span class="op">)</span>,</span>
-<span>  include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"both"</span>, <span class="st">"agents"</span>, <span class="st">"skills"</span><span class="op">)</span></span>
+<span>  include <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"both"</span>, <span class="st">"agents"</span>, <span class="st">"skills"</span><span class="op">)</span>,</span>
+<span>  references <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -74,9 +75,9 @@ the home directory returned by `getOption("nlmixr2llm.home")` (defaulting to
 writes away from the real home (used by the package's tests).</p></dd>
 
 
-<dt id="arg-packages">packages<a class="anchor" aria-label="anchor" href="#arg-packages"></a></dt>
-<dd><p>Character vector of nlmixr2-universe packages to include.
-Defaults to all available packages.</p></dd>
+<dt id="arg-tasks">tasks<a class="anchor" aria-label="anchor" href="#arg-tasks"></a></dt>
+<dd><p>Character vector of tasks whose skills to include. Defaults to
+all available tasks (see [list_tasks()]).</p></dd>
 
 
 <dt id="arg-path">path<a class="anchor" aria-label="anchor" href="#arg-path"></a></dt>
@@ -95,6 +96,11 @@ working directory.</p></dd>
 <dd><p>Which content to include: `"both"` (default), `"agents"`,
 or `"skills"`.</p></dd>
 
+
+<dt id="arg-references">references<a class="anchor" aria-label="anchor" href="#arg-references"></a></dt>
+<dd><p>If `TRUE`, also include each skill's supporting reference
+files (see [list_skill_files()]). Defaults to `FALSE` to stay compact.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -104,7 +110,9 @@ or `"skills"`.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Codex has a default limit of ~32 KiB for combined AGENTS.md content
 (`project_doc_max_bytes`); a warning is issued if the written file exceeds
-that size.</p>
+that size. The agent plus all four task skills is about 37 KiB, so for Codex
+subset with `tasks = ...` or `include = ...` (the agent alone is ~8 KiB and
+each skill ~7-8 KiB; the agent plus three skills is ~29 KiB).</p>
 <p>For `scope = "user"` (which writes under your home directory) the function
 asks for confirmation in interactive sessions before writing. Non-interactive
 callers proceed without prompting; set `options(nlmixr2llm.consent = TRUE)` to
@@ -117,15 +125,15 @@ pre-approve.</p>
   [install_positron()] with `style = "agents_md"`) are the **same file**, so
   installing both into one project means the second call overwrites the
   first. With default arguments the instruction content is identical, so this
-  is harmless; if you pass different `packages`/`include` to each, only the
+  is harmless; if you pass different `tasks`/`include` to each, only the
   last call's selection survives.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="fu">install_codex</span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"project"</span>, packages <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rxode2"</span>, <span class="st">"nlmixr2"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">install_codex</span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"user"</span>, mode <span class="op">=</span> <span class="st">"append"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">install_codex</span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"project"</span>, tasks <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"simulation"</span>, <span class="st">"estimation"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">install_codex</span><span class="op">(</span>scope <span class="op">=</span> <span class="st">"user"</span>, include <span class="op">=</span> <span class="st">"agents"</span>, mode <span class="op">=</span> <span class="st">"append"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
@@ -138,7 +146,7 @@ pre-approve.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

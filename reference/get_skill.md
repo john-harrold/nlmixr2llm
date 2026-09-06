@@ -1,18 +1,20 @@
 # Read a skill's markdown content
 
-Read a skill's markdown content
+Returns the \`SKILL.md\` for a task. Supporting reference files that
+ship alongside it (see \[list_skill_files()\]) are not included; use
+\[system_prompt()\] with \`references = TRUE\` to concatenate them.
 
 ## Usage
 
 ``` r
-get_skill(package)
+get_skill(task)
 ```
 
 ## Arguments
 
-- package:
+- task:
 
-  One of \[list_skills()\].
+  One of \[list_tasks()\].
 
 ## Value
 
@@ -22,8 +24,8 @@ YAML frontmatter.
 ## Examples
 
 ``` r
-cat(substr(get_skill("rxode2"), 1, 200))
+cat(substr(get_skill("simulation"), 1, 200))
 #> ---
-#> name: rxode2
-#> description: Use this skill when the user is creating, editing, or running ODE-based pharmacometric models with the R package rxode2. Triggers include writing PK/PD models with `ini({
+#> name: simulation
+#> description: Use this skill when the user wants to simulate a pharmacokinetic or pharmacodynamic model in R with the nlmixr2 ecosystem — writing or editing an ODE model, building 
 ```

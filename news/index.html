@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">nlmixr2llm</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,6 +35,32 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="nlmixr2llm-020">nlmixr2llm 0.2.0<a class="anchor" aria-label="anchor" href="#nlmixr2llm-020"></a></h2>
+<div class="section level3">
+<h3 id="task-oriented-content-0-2-0">Task-oriented content<a class="anchor" aria-label="anchor" href="#task-oriented-content-0-2-0"></a></h3>
+<ul><li>Skills are now organized around <strong>tasks</strong> instead of individual packages: <code>simulation</code>, <code>estimation</code>, <code>reporting</code>, and <code>interop</code> (NONMEM / Monolix / PKNCA). The per-package skills (<code>rxode2</code>, <code>nlmixr2</code>, <code>babelmixr2</code>, <code>nonmem2rx</code>, <code>monolix2rx</code>) are gone; their content lives in the task skills.</li>
+<li>New <code>reporting</code> skill covers goodness-of-fit diagnostics, VPCs, parameter tables, and Word / PowerPoint reports (nlmixr2plot, xpose.nlmixr2, ggPMX, nlmixr2rpt, shinyMixR) – content that had no home before.</li>
+<li>Skills may carry supporting <code>references/*.md</code> files for depth (e.g. <code>interop/references/nonmem.md</code>). <code><a href="../reference/install_claude_code.html">install_claude_code()</a></code> copies them with the skill; <code><a href="../reference/system_prompt.html">system_prompt()</a></code> and the single-file installers include them when <code>references = TRUE</code>.</li>
+<li>The <code>nlmixr2verse</code> agent is now a compact orchestration layer (ecosystem map by task, routing, shared conventions, stage handoffs, self-check) at roughly a quarter of its previous size. The agent plus up to three skills fits under Codex’s 32 KiB <code>AGENTS.md</code> cap.</li>
+<li>Event-table examples use <code>et(time = ...)</code> for sampling times; the unnamed form (<code>ev |&gt; et(0:24)</code>) errors when piped in current rxode2.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="verification-0-2-0">Verification<a class="anchor" aria-label="anchor" href="#verification-0-2-0"></a></h3>
+<ul><li>Every fenced R code block in the agent and skills is now executed by an opt-in test (<code>tests/testthat/test-examples.R</code>) against a real SAEM fit, the bundled nonmem2rx / monolix2rx examples, and the nlmixr2rpt templates. Unexpected warnings fail the block (rxode2 only warns when a dose targets a compartment the model does not have). Run with <code>NLMIXR2LLM_RUN_EXAMPLES=true</code>; blocks that need NONMEM or Monolix are skipped. A dedicated GitHub Actions job (<code>skill-examples.yaml</code>) runs them weekly and on content changes against current CRAN releases.</li>
+<li>Content was reviewed against the installed packages and the upstream repositories. Fixes include the multi-endpoint residual syntax (<code>| endpoint</code>, a bare name, not <code>| dvid("name")</code>), the default nlmixr2rpt figure IDs, ggPMX’s VPC being disabled for nlmixr2 fits, monolix2rx argument semantics and result-file layout, <code>nonmem2rx(save=)</code> writing <code>.qs</code>, and the behaviour of SAEM fits whose OFV is computed lazily. Upstream corrections from the per-package skills (bounded <code>logit(x, low, hi)</code>, <code>laplace</code> / <code>agq</code> methods, <code>boxCox()</code> / <code><a href="https://rdrr.io/r/stats/TDist.html" class="external-link">dt()</a></code> / <code>ll()</code> residual forms, babelmixr2 importing engine output rather than re-translating, <code>babelmixr2::as.nlmixr2()</code>) are carried into the task skills.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="api-changes-breaking-0-2-0">API changes (breaking)<a class="anchor" aria-label="anchor" href="#api-changes-breaking-0-2-0"></a></h3>
+<ul><li>The <code>packages =</code> argument of <code><a href="../reference/system_prompt.html">system_prompt()</a></code>, <code><a href="../reference/install_claude_code.html">install_claude_code()</a></code>, <code><a href="../reference/install_codex.html">install_codex()</a></code>, <code><a href="../reference/install_agents_md.html">install_agents_md()</a></code>, and <code><a href="../reference/install_positron.html">install_positron()</a></code> is replaced by <code>tasks =</code>. Passing a package name errors with the list of valid tasks.</li>
+<li>
+<code><a href="../reference/get_skill.html">get_skill()</a></code> takes a task name.</li>
+<li>New: <code><a href="../reference/list_tasks.html">list_tasks()</a></code>, <code><a href="../reference/list_skill_files.html">list_skill_files()</a></code>, and a <code>references</code> argument on <code><a href="../reference/system_prompt.html">system_prompt()</a></code> and the single-file installers.</li>
+<li>
+<code><a href="../reference/list_packages.html">list_packages()</a></code> now reports the packages the task skills cover and accepts <code>tasks =</code> to subset; <code><a href="../reference/list_skills.html">list_skills()</a></code> returns task names.</li>
+<li>Re-running <code><a href="../reference/install_claude_code.html">install_claude_code()</a></code> / <code>install_positron(style = "instructions")</code> after upgrading prunes the old per-package files automatically (manifest-tracked).</li>
+</ul></div>
+</div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="nlmixr2llm-010">nlmixr2llm 0.1.0<a class="anchor" aria-label="anchor" href="#nlmixr2llm-010"></a></h2>
 <ul><li>Initial version.</li>
 <li>Ships a single combined <code>nlmixr2verse</code> agent spanning the nlmixr2 pharmacometrics ecosystem (<code>rxode2</code>, <code>nlmixr2</code>, <code>nonmem2rx</code>, <code>monolix2rx</code>, <code>babelmixr2</code>), plus one skill per package.</li>
@@ -43,7 +69,8 @@
 <li>
 <code><a href="../reference/nlmixr2llm_status.html">nlmixr2llm_status()</a></code> reports whether the content installed into each target is up to date with the package.</li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
@@ -51,7 +78,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
     </footer></div>

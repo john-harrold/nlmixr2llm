@@ -10,9 +10,10 @@ Codex CLI, Cursor, Aider, GitHub Copilot, Zed, Warp, Jules, and Devin.
 ``` r
 install_agents_md(
   path = ".",
-  packages = NULL,
+  tasks = NULL,
   mode = c("write", "append", "error"),
-  include = c("both", "agents", "skills")
+  include = c("both", "agents", "skills"),
+  references = FALSE
 )
 ```
 
@@ -22,10 +23,10 @@ install_agents_md(
 
   Project root. Defaults to the current working directory.
 
-- packages:
+- tasks:
 
-  Character vector of nlmixr2-universe packages to include. Defaults to
-  all available packages.
+  Character vector of tasks whose skills to include. Defaults to all
+  available tasks (see \[list_tasks()\]).
 
 - mode:
 
@@ -36,6 +37,11 @@ install_agents_md(
 
   Which content to include: \`"both"\` (default), \`"agents"\`, or
   \`"skills"\`.
+
+- references:
+
+  If \`TRUE\`, also include each skill's supporting reference files (see
+  \[list_skill_files()\]). Defaults to \`FALSE\`.
 
 ## Value
 
@@ -52,6 +58,6 @@ For Codex-specific installation that also supports the user-level
 
 ``` r
 if (FALSE) { # \dontrun{
-install_agents_md(path = ".", packages = c("rxode2", "nlmixr2"))
+install_agents_md(path = ".", tasks = c("simulation", "estimation"))
 } # }
 ```

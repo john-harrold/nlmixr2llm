@@ -1,6 +1,6 @@
 # List available skills
 
-List available skills
+Skills are one per task, so this is the same set as \[list_tasks()\].
 
 ## Usage
 
@@ -10,11 +10,11 @@ list_skills()
 
 ## Value
 
-Character vector of skill names (one per nlmixr2-universe package).
+Character vector of skill names.
 
 ## Examples
 
 ``` r
 list_skills()
-#> [1] "babelmixr2" "monolix2rx" "nlmixr2"    "nonmem2rx"  "rxode2"    
+#> [1] "estimation" "interop"    "reporting"  "simulation"
 ```

@@ -4,9 +4,11 @@ LLM-facing documentation for the [nlmixr2](https://nlmixr2.org/)
 pharmacometric modeling ecosystem in R, distributed as an R package and
 as a Claude Code plugin.
 
-The same content — a single combined `nlmixr2verse` agent plus
-per-package skill files for `rxode2`, `nlmixr2`, `nonmem2rx`,
-`monolix2rx`, and `babelmixr2` — is shipped two ways:
+The content is organized around the **tasks** a pharmacometrician
+performs rather than around individual packages: a single `nlmixr2verse`
+agent routes work across four task skills — `simulation`, `estimation`,
+`reporting`, and `interop` (NONMEM / Monolix / PKNCA). The same content
+is shipped two ways:
 
 - **As an R package**, with accessor functions for use as a system
   prompt with any LLM client (`ellmer`, the Anthropic SDK, the OpenAI
@@ -20,22 +22,20 @@ per-package skill files for `rxode2`, `nlmixr2`, `nonmem2rx`,
 
 ## Coverage
 
-A single combined **`nlmixr2verse`** agent spans the whole ecosystem
-(the orchestration layer), and each package ships a **skill** for
-on-demand depth:
-
-| Package | Skill | Purpose |
+| Task | What it covers | Packages |
 |----|----|----|
-| [`rxode2`](https://github.com/nlmixr2/rxode2) | ✓ | ODE-based PK/PD modeling and simulation |
-| [`nlmixr2`](https://github.com/nlmixr2/nlmixr2) | ✓ | Population PK/PD parameter estimation (SAEM, FOCEi, …) |
-| [`nonmem2rx`](https://github.com/nlmixr2/nonmem2rx) | ✓ | Convert finished NONMEM runs into rxode2 / nlmixr2 objects |
-| [`monolix2rx`](https://github.com/nlmixr2/monolix2rx) | ✓ | Convert Monolix projects into rxode2 / nlmixr2 objects |
-| [`babelmixr2`](https://github.com/nlmixr2/babelmixr2) | ✓ | Fit nlmixr2 models via NONMEM, Monolix, or PKNCA backends |
+| `simulation` | Author and debug ODE PK/PD models, event tables, single-subject / population / clinical-trial simulation, parameter uncertainty, resampling fitted subjects, the model library | [`rxode2`](https://github.com/nlmixr2/rxode2), [`nlmixr2lib`](https://github.com/nlmixr2/nlmixr2lib) |
+| `estimation` | Fit population PK/PD models (SAEM, FOCEi, nlme), model building, covariates, standard errors, bootstrap, likelihood profiling, model comparison | [`nlmixr2`](https://github.com/nlmixr2/nlmixr2), [`nlmixr2extra`](https://github.com/nlmixr2/nlmixr2extra), `nlmixr2lib` |
+| `reporting` | Goodness-of-fit diagnostics, VPCs, augmented predictions, parameter tables, Word / PowerPoint / R Markdown reports, interactive review | [`nlmixr2plot`](https://github.com/nlmixr2/nlmixr2plot), [`xpose.nlmixr2`](https://github.com/nlmixr2/xpose.nlmixr2), [`ggPMX`](https://github.com/ggPMXdevelopment/ggPMX), [`nlmixr2rpt`](https://github.com/nlmixr2/nlmixr2rpt), [`shinyMixR`](https://github.com/RichardHooijmaijers/shinyMixR) |
+| `interop` | Run an nlmixr2 model in NONMEM / Monolix / PKNCA; import finished NONMEM or Monolix runs into R and qualify the translation; cross-engine comparison | [`babelmixr2`](https://github.com/nlmixr2/babelmixr2), [`nonmem2rx`](https://github.com/nlmixr2/nonmem2rx), [`monolix2rx`](https://github.com/nlmixr2/monolix2rx) |
 
-The `nlmixr2verse` agent covers all five packages and the end-to-end
-workflow that connects them (author in rxode2 → fit in nlmixr2 → run on
-other engines with babelmixr2 → import legacy runs with nonmem2rx /
-monolix2rx).
+Each skill is a directory: a compact `SKILL.md` (~8 KiB) plus
+`references/*.md` files with extra depth (engine-specific NONMEM /
+Monolix notes, population-simulation patterns, model-building and
+precision recipes, the nlmixr2rpt YAML structure). The `nlmixr2verse`
+agent (~8 KiB) holds the ecosystem map by task, routing rules, the
+shared model-language conventions, and how the stages hand off to one
+another (simulate ⇄ estimate → report; import → qualify → simulate).
 
 ## Install (R package)
 
@@ -53,12 +53,15 @@ remotes::install_github("john-harrold/nlmixr2llm")
 
 library(nlmixr2llm)
 
-prompt <- system_prompt(packages = c("rxode2", "nlmixr2"))
+prompt <- system_prompt(tasks = c("simulation", "estimation"))
 
 # Example: with ellmer
 chat <- ellmer::chat_anthropic(system_prompt = prompt)
-chat$chat("Write a one-compartment PK model with first-order absorption in rxode2.")
+chat$chat("Write a one-compartment PK model with first-order absorption and simulate 100 mg q12h for 5 days.")
 ```
+
+Add `references = TRUE` to include each skill’s supporting reference
+files.
 
 ### Install into Claude Code
 
@@ -76,18 +79,18 @@ install_claude_code(scope = "project")
 ``` r
 
 # Project AGENTS.md at the repo root
-install_codex(scope = "project", packages = c("rxode2", "nlmixr2"))
+install_codex(scope = "project", tasks = c("simulation", "estimation"))
 
 # Global ~/.codex/AGENTS.md
-install_codex(scope = "user", mode = "append")
+install_codex(scope = "user", include = "agents", mode = "append")
 ```
 
 Codex enforces a default 32 KiB cap on combined `AGENTS.md` content. The
-full corpus (~62 KiB) exceeds that. The combined `nlmixr2verse` agent is
-~29 KiB on its own and is included whole whenever agents are requested,
-so `packages = ...` only subsets the skills. For Codex, install
-`include = "agents"` (just the agent, ~29 KiB) or `include = "skills"`
-with a `packages = ...` subset.
+agent plus all four skills is ~37 KiB; the agent alone is ~8 KiB and
+each skill ~7-8 KiB, so the agent plus up to three skills fits (~29
+KiB).
+[`install_codex()`](https://john-harrold.github.io/nlmixr2llm/reference/install_codex.md)
+warns when the written file exceeds the cap.
 
 ### Install into Positron Assistant
 
@@ -96,7 +99,7 @@ with a `packages = ...` subset.
 # Project-root agents.md (also picked up by Codex, Cursor, Aider, Zed, ...)
 install_positron(workspace = ".", style = "agents_md")
 
-# Per-package .github/instructions/*.instructions.md with applyTo: "**/*.R"
+# Per-task .github/instructions/*.instructions.md with applyTo: "**/*.R"
 install_positron(workspace = ".", style = "instructions")
 ```
 
@@ -104,7 +107,7 @@ install_positron(workspace = ".", style = "instructions")
 
 ``` r
 
-install_agents_md(path = ".", packages = c("rxode2", "nlmixr2"))
+install_agents_md(path = ".", tasks = c("simulation", "estimation"))
 ```
 
 Covered by the [`agents.md`](https://agents.md) cross-tool spec: Codex,
@@ -118,9 +121,10 @@ existing files).
 [`install_claude_code()`](https://john-harrold.github.io/nlmixr2llm/reference/install_claude_code.md)
 and `install_positron(style = "instructions")` keep a manifest
 (`.nlmixr2llm-manifest`) and, by default (`prune = TRUE`), remove files
-they installed in an earlier version but no longer ship — so a renamed
-agent or dropped package doesn’t leave an orphan behind. Only files
-nlmixr2llm created are ever removed.
+they installed in an earlier version but no longer ship — so upgrading
+from the per-package layout of 0.1.0 to the task layout removes the old
+`rxode2`, `nlmixr2`, … skills automatically. Only files nlmixr2llm
+created are ever removed.
 
 To check whether your installed content is current without reinstalling,
 run
@@ -152,13 +156,15 @@ package uses) so the repo doubles as a plugin source:
 
 | Function | Purpose |
 |----|----|
-| [`list_packages()`](https://john-harrold.github.io/nlmixr2llm/reference/list_packages.md), [`list_agents()`](https://john-harrold.github.io/nlmixr2llm/reference/list_agents.md), [`list_skills()`](https://john-harrold.github.io/nlmixr2llm/reference/list_skills.md) | Discovery |
-| [`get_agent()`](https://john-harrold.github.io/nlmixr2llm/reference/get_agent.md), `get_skill(pkg)` | Raw markdown ([`get_agent()`](https://john-harrold.github.io/nlmixr2llm/reference/get_agent.md) returns the combined `nlmixr2verse` agent) |
-| `system_prompt(packages, include)` | Combined prompt for LLM clients |
-| `install_claude_code(scope, packages, ...)` | Claude Code skill/agent tree |
-| `install_codex(scope, packages, mode, include)` | Codex CLI `AGENTS.md` |
-| `install_agents_md(path, packages, ...)` | Project-root `AGENTS.md` for any `agents.md`-aware tool |
-| `install_positron(workspace, style, packages, ...)` | Positron Assistant instructions |
+| [`list_tasks()`](https://john-harrold.github.io/nlmixr2llm/reference/list_tasks.md), [`list_skills()`](https://john-harrold.github.io/nlmixr2llm/reference/list_skills.md), [`list_agents()`](https://john-harrold.github.io/nlmixr2llm/reference/list_agents.md) | Discovery (skills are one per task) |
+| `list_packages(tasks)` | Which nlmixr2-universe packages the selected tasks cover |
+| `list_skill_files(task)` | `SKILL.md` plus the supporting reference files of a skill |
+| [`get_agent()`](https://john-harrold.github.io/nlmixr2llm/reference/get_agent.md), `get_skill(task)` | Raw markdown ([`get_agent()`](https://john-harrold.github.io/nlmixr2llm/reference/get_agent.md) returns the combined `nlmixr2verse` agent) |
+| `system_prompt(tasks, include, references)` | Combined prompt for LLM clients |
+| `install_claude_code(scope, tasks, ...)` | Claude Code skill/agent tree |
+| `install_codex(scope, tasks, mode, include, references)` | Codex CLI `AGENTS.md` |
+| `install_agents_md(path, tasks, ...)` | Project-root `AGENTS.md` for any `agents.md`-aware tool |
+| `install_positron(workspace, style, tasks, ...)` | Positron Assistant instructions |
 | `nlmixr2llm_status(path)` | Report whether installed files (Claude Code, Codex, Positron) are out of date vs the package |
 
 ## Layout
@@ -172,20 +178,49 @@ package uses) so the repo doubles as a plugin source:
     │   ├── claude_code.R
     │   ├── codex.R
     │   ├── agents_md.R
-    │   └── positron.R
+    │   ├── positron.R
+    │   ├── status.R
+    │   └── sync.R
     ├── man/
     ├── .claude-plugin/        # Claude Code plugin manifest (not shipped in R tarball)
     └── inst/
         ├── agents/
+        │   └── nlmixr2verse.md
         └── skills/
+            ├── simulation/    # SKILL.md + references/population-simulation.md
+            ├── estimation/    # SKILL.md + references/model-building.md
+            ├── reporting/     # SKILL.md + references/nlmixr2rpt.md
+            └── interop/       # SKILL.md + references/nonmem.md, monolix.md
 
 ## Contributing
 
 The skill and agent files are plain Markdown with YAML frontmatter —
-edit them in `inst/agents/` and `inst/skills/`. Vignette references
-point at filenames in each package’s source repo
+edit them in `inst/agents/` and `inst/skills/`. Keep each `SKILL.md`
+compact and push depth into that skill’s `references/`. Vignette
+references point at filenames in each package’s source repo
 (`github.com/nlmixr2/<pkg>/tree/main/vignettes/`); please verify any new
 references against the live repo before merging.
+
+Every fenced R block in the agent and skills is executed by an opt-in
+test against a real fit, so a snippet that stops working with a new
+release of an nlmixr2-universe package shows up as a test failure. It
+needs the modeling stack installed and takes several minutes:
+
+``` r
+
+Sys.setenv(NLMIXR2LLM_RUN_EXAMPLES = "true")
+testthat::test_local(filter = "examples")
+```
+
+The same tests run in CI in a dedicated job
+(`.github/workflows/skill-examples.yaml`) that installs the modeling
+stack via `extra-packages` and runs on content changes and on a weekly
+schedule, so upstream API drift is caught without the main `R-CMD-check`
+matrix having to carry those dependencies. Blocks that require NONMEM or
+Monolix, or that only show placeholder paths, are listed in
+`example_skips` in `tests/testthat/helper-examples.R`. Snippets should
+assume the fixture objects documented there (`fit`, `mod`, `ev`, `data`,
+`obnd`, …) or define what they use.
 
 ## License
 

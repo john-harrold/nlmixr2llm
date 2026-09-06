@@ -4,12 +4,16 @@
 
 Inspect the agents and skills bundled with the package.
 
+- [`list_tasks()`](https://john-harrold.github.io/nlmixr2llm/reference/list_tasks.md)
+  : List the tasks covered by this package
 - [`list_packages()`](https://john-harrold.github.io/nlmixr2llm/reference/list_packages.md)
   : List the nlmixr2-universe packages covered by this package
 - [`list_agents()`](https://john-harrold.github.io/nlmixr2llm/reference/list_agents.md)
   : List available agents
 - [`list_skills()`](https://john-harrold.github.io/nlmixr2llm/reference/list_skills.md)
   : List available skills
+- [`list_skill_files()`](https://john-harrold.github.io/nlmixr2llm/reference/list_skill_files.md)
+  : List the files that make up a skill
 - [`get_agent()`](https://john-harrold.github.io/nlmixr2llm/reference/get_agent.md)
   : Read an agent's markdown content
 - [`get_skill()`](https://john-harrold.github.io/nlmixr2llm/reference/get_skill.md)

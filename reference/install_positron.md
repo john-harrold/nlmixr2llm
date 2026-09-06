@@ -11,10 +11,11 @@ styles are supported:
 install_positron(
   workspace = ".",
   style = c("agents_md", "instructions"),
-  packages = NULL,
+  tasks = NULL,
   overwrite = FALSE,
   prune = TRUE,
-  apply_to = "**/*.R"
+  apply_to = "**/*.R",
+  references = FALSE
 )
 ```
 
@@ -28,10 +29,10 @@ install_positron(
 
   One of \`"agents_md"\` (default) or \`"instructions"\`.
 
-- packages:
+- tasks:
 
-  Character vector of nlmixr2-universe packages to include. Defaults to
-  all available packages.
+  Character vector of tasks whose skills to include. Defaults to all
+  available tasks (see \[list_tasks()\]).
 
 - overwrite:
 
@@ -52,6 +53,12 @@ install_positron(
   Glob used in each \`\*.instructions.md\` frontmatter when \`style =
   "instructions"\`. Defaults to \`"\*\*/\*.R"\`.
 
+- references:
+
+  If \`TRUE\`, also include each skill's supporting reference files (see
+  \[list_skill_files()\]) in the generated content. Defaults to
+  \`FALSE\`.
+
 ## Value
 
 Invisibly, a character vector of files written.
@@ -62,8 +69,8 @@ Invisibly, a character vector of files written.
 the workspace root. This is the file Positron looks for first, and it is
 also the shared \`AGENTS.md\` convention used by Codex, Cursor, Aider,
 Zed, and others, so this option gives broad coverage with one file. \*
-\`style = "instructions"\` – writes one \`\<package\>.instructions.md\`
-per selected package (skill content) plus a single
+\`style = "instructions"\` – writes one \`\<task\>.instructions.md\` per
+selected task (skill content) plus a single
 \`nlmixr2verse.instructions.md\` (the combined ecosystem agent) into
 \`.github/instructions/\`, each with \`applyTo: "\*\*/\*.R"\` so
 Positron Assistant attaches the content when editing R files.
@@ -80,8 +87,8 @@ written by \`style = "agents_md"\` and Codex's \`AGENTS.md\` (see
 file\*\*, so installing both into one project means the second call
 overwrites the first. With default arguments the instruction content is
 identical, so this is harmless; if you pass different
-\`packages\`/\`include\` to each, only the last call's selection
-survives. The \`style = "instructions"\` files
+\`tasks\`/\`include\` to each, only the last call's selection survives.
+The \`style = "instructions"\` files
 (\`.github/instructions/\*.instructions.md\`) do not collide.
 
 ## Examples
@@ -90,6 +97,6 @@ survives. The \`style = "instructions"\` files
 if (FALSE) { # \dontrun{
 install_positron(workspace = ".", style = "agents_md")
 install_positron(workspace = ".", style = "instructions",
-                 packages = c("rxode2", "nlmixr2"))
+                 tasks = c("simulation", "estimation"))
 } # }
 ```
